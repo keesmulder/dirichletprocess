@@ -1,7 +1,7 @@
 context("Von Mises Mixing Distribution Functions")
 
-data_test = rvmc(10, 3, 2)
-priorParameters_test = matrix(c(1,1,2), ncol = 3)
+data_test <-  rvmc(10, 3, 2)
+priorParameters_test = matrix(c(1, 0, 2), ncol = 3)
 
 vonmises_object_test = MixingDistribution("vonmises", priorParameters_test, "conjugate")
 
@@ -45,12 +45,13 @@ test_that("Von Mises Predictive", {
 })
 
 test_that("Development tests", {
-  skip("Skip dev testsS")
+  skip("Skip dev tests")
 
   # PRIOR DRAW
   PriorDraw.vonmises(vonmises_object_test, 10)
 
   # POSTERIOR DRAW
+  PosteriorDraw.vonmises(vonmises_object_test, data_test, n = 10)
 
 
   # POSTERIOR PARAMETERS
@@ -63,4 +64,24 @@ test_that("Development tests", {
                PosteriorParameters.vonmises(vonmises_object_test, numeric(0)))
 
 
+  # PREDICTIVE
+  Predictive(vonmises_object_test, data_test)
+
+
+  # REAL DATA
+  x <- c(rvmc(100, 0, 2), rvmc(100, 2, 15), rvmc(100, 3.6, 20))
+  hist(x, breaks = 100)
+
+  priPar     <- matrix(c(1, .5, 1), ncol = 3)
+  vonmisesMD <-  MixingDistribution("vonmises", priPar, "conjugate")
+
+  dpvm     <- DirichletProcessCreate(x, vonmisesMD)
+  str(dpvm)
+
+  dpvmintd <- Initialise(dpvm)
+  str(dpvmintd)
+
+  dpfit <- Fit(dpvmintd, 1000)
+
+  plot(dpfit)
 })

@@ -20,10 +20,10 @@ library(circglmbayes)
 logBesselI <- function(x, nu) log(besselI(x, nu, expon.scaled = TRUE)) + x
 
 # von Mises
-dvm <- function(x, mu, kp) {
+dvm <- Vectorize(function(x, mu, kp) {
   logpdf <- kp * cos(x - mu) - log(2*pi) - logBesselI(kp, 0)
   return(exp(logpdf))
-}
+})
 
 
 
@@ -134,7 +134,7 @@ Predictive.vonmises <- function(mdobj, x) {
     marglikfun <- function(kp) exp(logBesselI(R_n * kp, 0) -
                                      n_n * logBesselI(kp, 0))
 
-    predictiveArray[i] <- integrate(marglikfun, 0, Inf)$value
+    predictiveArray[i] <- integrate(marglikfun, 0, Inf)$value / (2*pi)
   }
 
   return(predictiveArray)
