@@ -45,8 +45,15 @@ test_that("Von Mises Predictive", {
 })
 
 test_that("Development tests", {
-  skip("Skip dev tests")
+  skip("Skip dev testsS")
 
+  # PRIOR DRAW
+  PriorDraw.vonmises(vonmises_object_test, 10)
+
+  # POSTERIOR DRAW
+
+
+  # POSTERIOR PARAMETERS
   x <- 1:3
   PosteriorParameters.vonmises(vonmises_object_test, x)
   PosteriorParameters.vonmises(vonmises_object_test, 1)

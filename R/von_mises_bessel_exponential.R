@@ -32,11 +32,13 @@ dbesselexp2 <- function(kp, mu, mu_n, R_n, n_n) {
   g <- -R_n * cos(mu - mu_n) / n_n
   dbesselexp(kp, eta, g)
 }
-rbesselexp2 <- function(kp, mu, mu_n, R_n, n_n) {
+rbesselexp2 <- function(n, mu, mu_n, R_n, n_n) {
   eta <- n_n
   g <- -R_n * cos(mu - mu_n) / n_n
-  rbesselexp(kp, eta, g)
+  rbesselexp(n, eta, g)
 }
+
+
 
 PosteriorParameters.vonmises <- function(mdobj, x) {
   priorParameters <- mdobj$priorParameters
@@ -72,17 +74,68 @@ PriorDraw.vonmises <- function(mdobj, n = 1, nsamp = 3) {
   if (n_0 < 0 | R_0 < -1) stop("Prior parameters out of bounds.")
 
   # Random starting value.
-  mu <- runif(1, -pi, pi)
+  mu <- runif(n, -pi, pi)
   for (i in 1:nsamp) {
 
-    kp <- rbesselexp2(n, mu, mu_0, R_0, n_0)
+    kp <- vapply(mu, function(mui) {
+      rbesselexp2(1, mui, mu_0, R_0, n_0)
+    }, FUN.VALUE = 0)
     mu <- vapply(kp, function(kpi) {
       rvmc(1, mu_0, R_0 * kpi)
     }, FUN.VALUE = 0)
   }
 
-  theta <- list(array(mu, dim = c(1, 1, n)),
-                array(kp, dim = c(1, 1, n)))
+  theta <- list(mu = array(mu, dim = c(1, 1, n)),
+                kp = array(kp, dim = c(1, 1, n)))
   return(theta)
 }
 
+
+PosteriorDraw.vonmises <- function(mdobj, x, n = 1, nsamp = 3) {
+
+  PosteriorParameters_calc <- PosteriorParameters(mdobj, x)
+
+  mu_n <- PosteriorParameters_calc[1]
+  R_n  <- PosteriorParameters_calc[2]
+  n_n  <- PosteriorParameters_calc[3]
+
+  if (n_n < 0 | R_n < -1) stop("Posterior parameters out of bounds.")
+
+  # Random starting value.
+  mu <- runif(n, -pi, pi)
+  for (i in 1:nsamp) {
+
+    kp <- vapply(mu, function(mui) {
+      rbesselexp2(1, mui, mu_n, R_n, n_n)
+    }, FUN.VALUE = 0)
+    mu <- vapply(kp, function(kpi) {
+      rvmc(1, mu_n, R_n * kpi)
+    }, FUN.VALUE = 0)
+  }
+
+  theta <- list(mu = array(mu, dim = c(1, 1, n)),
+                kp = array(kp, dim = c(1, 1, n)))
+  return(theta)
+}
+
+
+
+Predictive.vonmises <- function(mdobj, x) {
+
+  predictiveArray <- numeric(length(x))
+
+  for (i in seq_along(x)) {
+
+    PosteriorParameters_calc <- PosteriorParameters(mdobj, x[i])
+    R_n  <- PosteriorParameters_calc[2]
+    n_n  <- PosteriorParameters_calc[3]
+
+    # The posterior predictive density with the mean direction integrated out.
+    marglikfun <- function(kp) exp(logBesselI(R_n * kp, 0) -
+                                     n_n * logBesselI(kp, 0))
+
+    predictiveArray[i] <- integrate(marglikfun, 0, Inf)$value
+  }
+
+  return(predictiveArray)
+}
