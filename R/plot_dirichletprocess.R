@@ -29,16 +29,17 @@ plot_dirichletprocess.mvnormal <- function(dpobj, likelihood = FALSE, single = T
   plot_dirichletprocess_multivariate(dpobj, likelihood = FALSE, single = TRUE)
 }
 
-plot_dirichletprocess_univariate <- function(dpobj, likelihood = FALSE, single = TRUE) {
+plot_dirichletprocess_univariate <- function(dpobj, likelihood = FALSE, single = TRUE,
+                                             res = 100, bw_data = "nrd0") {
 
   graph <- ggplot2::ggplot(data.frame(dt = dpobj$data), ggplot2::aes_(x = ~dt)) +
-    ggplot2::geom_density(fill = "black") +
+    ggplot2::geom_density(fill = "black", bw = bw_data) +
     ggplot2::theme(axis.title = ggplot2::element_blank())
 
-  x_grid <- pretty(dpobj$data, n=100)
+  x_grid <- pretty(dpobj$data, n = res)
 
   if (single){
-    posteriorFit <- replicate(100, PosteriorFunction(dpobj)(x_grid))
+    posteriorFit <- replicate(res, PosteriorFunction(dpobj)(x_grid))
   } else {
     its <- length(dpobj$alphaChain)
     inds <- round(seq(its/2, 2, length.out = 100))
@@ -52,11 +53,11 @@ plot_dirichletprocess_univariate <- function(dpobj, likelihood = FALSE, single =
   graph <- graph + ggplot2::geom_line(data=data.frame(x=x_grid, y=posteriorCI[3,]), ggplot2::aes_(x=~x,y=~y, colour="Posterior"), linetype=2)
 
   if (likelihood) {
-    graph <- graph + ggplot2::stat_function(fun = function(z) LikelihoodFunction(dpobj)(z),
-                                            n = 1000, ggplot2::aes(colour = "Likelihood"))
-  }
-  else {
-    graph <- graph + ggplot2::guides(colour=FALSE)
+    graph <- graph +
+      ggplot2::stat_function(fun = function(z) LikelihoodFunction(dpobj)(z),
+                             n = 10 * res, ggplot2::aes(colour = "Likelihood"))
+  } else {
+    graph <- graph + ggplot2::guides(colour = FALSE)
   }
 
   return(graph)
