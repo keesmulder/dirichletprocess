@@ -48,7 +48,54 @@ test_that("Development tests", {
   skip("Skip dev tests")
 
   # PRIOR DRAW
+
+  # General test
   PriorDraw.vonmises(vonmises_object_test, 10)
+
+
+  # Draw picture of marginal prior for comparison.
+  prior_vm <- function(mu, kp, mu_0, R_0, n_0) {
+    logprob <- kp * R_0 * cos(mu - mu_0) - n_0 * (log(2 * pi) + logBesselI(kp, 0))
+    exp(logprob)
+  }
+  margprior_kp <- Vectorize(function(kp, mu_0, R_0, n_0) {
+    integrate(function(mu) prior_vm(mu, kp, mu_0 = mu_0, R_0 = R_0, n_0 = n_0), 0, 2*pi)$value
+  }, "kp")
+  margprior_mu <- Vectorize(function(mu, mu_0, R_0, n_0) {
+    integrate(function(kp) prior_vm(mu, kp, mu_0 = mu_0, R_0 = R_0, n_0 = n_0), 0, Inf)$value
+  }, "mu")
+
+  # Make easy numerically marginalized functions.
+  mu_0 <- 1; R_0 <- 1.8; n_0 <- 2
+  mykpmarg_unnormalized <- Vectorize(function(kp) margprior_kp(kp, mu_0, R_0, n_0))
+  mymumarg_unnormalized <- Vectorize(function(mu) margprior_mu(mu, mu_0, R_0, n_0))
+
+  nc_kp <- integrate(mykpmarg_unnormalized, 0, Inf)$value
+  nc_mu <- integrate(mykpmarg_unnormalized, 0, 2*pi)$value
+
+  mykpmarg <- function(kp) mykpmarg_unnormalized(kp) / nc_kp
+  mymumarg <- function(mu) mymumarg_unnormalized(mu) / nc_mu
+
+  # Test curves
+  curve(mykpmarg, 0, 10)
+  curve(mymumarg, 0, 2*pi)
+
+  # Draw for comparison
+  n_draws <- 100000
+  vonmises_object_test$priorParameters <- matrix(c(mu_0, R_0, n_0), ncol = 3)
+  prior_draws <- PriorDraw.vonmises(vonmises_object_test, n_draws, nsamp = 15)
+
+  pd_df <- as.data.frame(cbind(mu = prior_draws$mu[1, 1, ], kp = prior_draws$kp[1, 1, ]))
+
+  ggplot(pd_df, aes(mu)) +
+    geom_histogram(aes(y = ..density..), binwidth = .02) +
+    stat_function(fun = mymumarg)
+
+  ggplot(pd_df, aes(kp)) +
+    geom_histogram(aes(y = ..density..), binwidth = .05) +
+    stat_function(fun = mykpmarg) + xlim(0, 5)
+
+
 
   # POSTERIOR DRAW
   PosteriorDraw.vonmises(vonmises_object_test, data_test, n = 10)
@@ -69,11 +116,13 @@ test_that("Development tests", {
 
 
   # REAL DATA
-  x <- c(rvmc(100, 0, 2), rvmc(100, 2, 15), rvmc(100, 3.6, 20))
+  x <- c(rvmc(30, 0, 2), rvmc(50, 2, 15), rvmc(80, 3.6, 20)) %% (2*pi)
   hist(x, breaks = 100)
 
-  priPar     <- matrix(c(1, .5, 1), ncol = 3)
+  priPar     <- matrix(c(0, 0, 1), ncol = 3)
   vonmisesMD <-  MixingDistribution("vonmises", priPar, "conjugate")
+
+  # curve(dvm(1, priPar[1], priPar[2] * x), 0, 100)
 
   dpvm     <- DirichletProcessCreate(x, vonmisesMD)
   str(dpvm)
@@ -81,7 +130,7 @@ test_that("Development tests", {
   dpvmintd <- Initialise(dpvm)
   str(dpvmintd)
 
-  dpfit <- Fit(dpvmintd, 1000)
+  dpfit <- Fit(dpvmintd, 10)
 
-  plot(dpfit)
+  graph <- plot(dpfit, likelihood = TRUE, single = TRUE); graph
 })
