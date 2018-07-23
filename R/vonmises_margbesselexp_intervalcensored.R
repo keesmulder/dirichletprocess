@@ -2,7 +2,7 @@
 #'
 #'
 #'@param priorParameters Prior parameters for the base measure which are, in
-#'  order, (R_0, c).
+#'  order, (R_0, n_0).
 #'
 #'@return Mixing distribution object
 #'@export
@@ -21,7 +21,19 @@ dvm <- Vectorize(function(x, mu, kp) {
   return(exp(logpdf))
 })
 
-Likelihood.vonmises_ic <- function(mdobj, x, theta) dvm(x, theta[[1]], theta[[2]])
+pvm <- Vectorize(circular:::pvonmises)
+
+Likelihood.vonmises_ic <- function(mdobj, x, theta) {
+  if (identical(x[1], x[2])) {
+    prob <- dvm(x[1], theta[[1]], theta[[2]])
+  } else {
+    prob <- suppressWarnings(
+      (pvm(x[2], theta[[1]], theta[[2]]) - pvm(x[1], theta[[1]], theta[[2]])) /
+        (x[2] - x[1])
+      )
+  }
+  return(prob)
+}
 
 
 # The prior is dgamma(x, shape = (n0 + 1)/2, rate = n0 - R0)
