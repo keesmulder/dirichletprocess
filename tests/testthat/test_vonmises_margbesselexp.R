@@ -8,6 +8,22 @@ test_that("Gamma approximation is accurate", {
 
   skip("Dev tests")
 
+  vmMd <- MixingDistribution(distribution = "vonmises",
+                             priorParameters = c(.9, 1),
+                             conjugate = "nonconjugate",
+                             mhStepSize = c(.5, .5))
+
+
+  y <- c(rnorm(40, -2, .2), rnorm(40, 0, .5), rnorm(40, 1.2, .1)) %% (2*pi)
+
+  dp <- DirichletProcessCreate(y, vmMd)
+  dp <- Initialise(dp)
+  res <- Fit(dp, 1000)
+
+
+
+  plot(res)
+
   library(ggplot2)
 
 
