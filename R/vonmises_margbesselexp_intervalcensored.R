@@ -21,11 +21,17 @@ dvm <- Vectorize(function(x, mu, kp) {
   return(exp(logpdf))
 })
 
+# Vectorized cdf
 pvm <- Vectorize(circular:::pvonmises)
 
+
 Likelihood.vonmises_ic <- function(mdobj, x, theta) {
+  # If the data is not interval-censored, just use the regular density.
   if (identical(x[1], x[2])) {
     prob <- dvm(x[1], theta[[1]], theta[[2]])
+
+    # For interval-censored data, the likelihood is given roughly by the formula
+    # F(end | params) - F(start | params) / (end - start).
   } else {
     prob <- suppressWarnings(
       (pvm(x[2], theta[[1]], theta[[2]]) - pvm(x[1], theta[[1]], theta[[2]])) /
@@ -59,7 +65,6 @@ PriorDensity.vonmises_ic <- function(mdobj, theta) {
   n_0  <- priorParameters[2]
   as.numeric(dgamma(theta[[2]], shape = (n_0 + 1)/2, rate = n_0 - R_0))
 }
-
 
 
 MhParameterProposal.vonmises_ic <- function(mdObj, old_params) {
