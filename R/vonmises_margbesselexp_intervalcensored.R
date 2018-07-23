@@ -6,8 +6,8 @@
 #'
 #'@return Mixing distribution object
 #'@export
-vonMisesMixtureCreate <- function(priorParameters){
-  mdobj <- MixingDistribution("vonmises", priorParameters, "nonconjugate")
+vonMisesICMixtureCreate <- function(priorParameters){
+  mdobj <- MixingDistribution("vonmises_ic", priorParameters, "nonconjugate")
   return(mdobj)
 }
 
@@ -21,12 +21,12 @@ dvm <- Vectorize(function(x, mu, kp) {
   return(exp(logpdf))
 })
 
-Likelihood.vonmises <- function(mdobj, x, theta) dvm(x, theta[[1]], theta[[2]])
+Likelihood.vonmises_ic <- function(mdobj, x, theta) dvm(x, theta[[1]], theta[[2]])
 
 
 # The prior is dgamma(x, shape = (n0 + 1)/2, rate = n0 - R0)
 # if (n_0 < 0 | R_0 < -1) stop("Prior parameters out of bounds.")
-PriorDraw.vonmises <- function(mdobj, n = 1) {
+PriorDraw.vonmises_ic <- function(mdobj, n = 1) {
 
   priorParameters <- mdobj$priorParameters
   R_0  <- priorParameters[1]
@@ -40,7 +40,7 @@ PriorDraw.vonmises <- function(mdobj, n = 1) {
   return(theta)
 }
 
-PriorDensity.vonmises <- function(mdobj, theta) {
+PriorDensity.vonmises_ic <- function(mdobj, theta) {
 
   priorParameters <- mdobj$priorParameters
   R_0  <- priorParameters[1]
@@ -50,7 +50,7 @@ PriorDensity.vonmises <- function(mdobj, theta) {
 
 
 
-MhParameterProposal.vonmises <- function(mdObj, old_params) {
+MhParameterProposal.vonmises_ic <- function(mdObj, old_params) {
 
   mhStepSize <- mdObj$mhStepSize
   new_params <- old_params
