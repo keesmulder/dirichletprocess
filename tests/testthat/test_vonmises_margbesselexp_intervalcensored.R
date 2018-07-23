@@ -1,14 +1,14 @@
-context("Von Mises Non Conjugate Functions")
+context("Von Mises Interval Censored Non Conjugate Functions")
 
 
 
 
 
-test_that("Gamma approximation is accurate", {
+test_that("Interval Censored works", {
 
   skip("Dev tests")
 
-  vmMd <- MixingDistribution(distribution = "vonmises",
+  vmicMd <- MixingDistribution(distribution = "vonmises_ic",
                              priorParameters = c(.9, 1),
                              conjugate = "nonconjugate",
                              mhStepSize = c(.5, .5))
@@ -16,7 +16,11 @@ test_that("Gamma approximation is accurate", {
 
   y <- c(rnorm(40, -2, .2), rnorm(40, 0, .5), rnorm(40, 1.2, .1)) %% (2*pi)
 
-  dp <- DirichletProcessCreate(y, vmMd)
+  y_cens <- cbind(y, y + c(0,1)) %% (2 * pi)
+
+  hist(y, breaks = 60)
+
+  dp <- DirichletProcessCreate(y_cens, vmicMd)
   dp <- Initialise(dp)
   res <- Fit(dp, 1000)
 

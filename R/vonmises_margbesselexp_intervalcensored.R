@@ -33,10 +33,12 @@ Likelihood.vonmises_ic <- function(mdobj, x, theta) {
     # For interval-censored data, the likelihood is given roughly by the formula
     # F(end | params) - F(start | params) / (end - start).
   } else {
-    prob <- suppressWarnings(
-      (pvm(x[2], theta[[1]], theta[[2]]) - pvm(x[1], theta[[1]], theta[[2]])) /
-        (x[2] - x[1])
-      )
+    cdf_beg <- suppressWarnings(pvm(x[1], theta[[1]], theta[[2]]))
+    cdf_end <- suppressWarnings(pvm(x[2], theta[[1]], theta[[2]]))
+
+    if (cdf_beg > cdf_end) cdf_end <- cdf_end + 1
+
+    prob <-  (cdf_end - cdf_beg) / (x[2] - x[1])
   }
   return(prob)
 }
