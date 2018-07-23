@@ -6,8 +6,8 @@
 #'
 #'@return Mixing distribution object
 #'@export
-vonMisesMixtureCreate <- function(priorParameters){
-  mdobj <- MixingDistribution("vonmises", priorParameters, "nonconjugate")
+vonMisesMixtureCreate <- function(priorParameters, mhStepSize = c(.5, .5)){
+  mdobj <- MixingDistribution("vonmises", priorParameters, "nonconjugate", c(.5, .5))
   return(mdobj)
 }
 
