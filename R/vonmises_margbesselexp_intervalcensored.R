@@ -33,12 +33,24 @@ Likelihood.vonmises_ic <- function(mdobj, x, theta) {
     # For interval-censored data, the likelihood is given roughly by the formula
     # F(end | params) - F(start | params) / (end - start).
   } else {
+
     cdf_beg <- suppressWarnings(pvm(x[1], theta[[1]], theta[[2]]))
     cdf_end <- suppressWarnings(pvm(x[2], theta[[1]], theta[[2]]))
 
-    if (cdf_beg > cdf_end) cdf_end <- cdf_end + 1
+    # Fix for circular cdf issues.
+    cdf_end[cdf_end < cdf_beg] <- cdf_end[cdf_end < cdf_beg] + 1
 
-    prob <-  (cdf_end - cdf_beg) / (x[2] - x[1])
+    # Fix to make sure that the circular distance is used.
+    if (x[1] > x[2]) {
+      x[2] <- x[2] + 2*pi
+    }
+
+    # The rounding takes place to fix tiny negative essentially-zero's.
+    prob <- round((cdf_end - cdf_beg) / (x[2] - x[1]), 10)
+
+    if (any(prob < 0)) stop(
+      cat("\n\n\nProblem at x = ", x[1], " and ", x[2], "\nand cdf_begs: ", cdf_beg, "\nand cdf_ends: ", cdf_end, "\nprob", prob)
+      )
   }
   return(prob)
 }
