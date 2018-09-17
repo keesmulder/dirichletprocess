@@ -38,6 +38,44 @@ ClusterParameterUpdate.conjugate <- function(dpObj) {
   return(dpObj)
 }
 #'@export
+ClusterParameterUpdate.ic_conjugate <- function(dpObj) {
+
+  y <- dpObj$data
+
+  y_imp <- numeric(nrow(y))
+
+  for (i in seq_len(nrow(y))) {
+    if (identical(y[i, 1], y[i, 2])) {
+      y_imp[i] <- y[i, 1]
+    } else {
+      y_imp[i] <- PosteriorPredictiveSampleCurrent(dpobj)
+    }
+  }
+
+
+
+  numLabels <- dpObj$numberClusters
+
+  clusterLabels <- dpObj$clusterLabels
+  clusterParams <- dpObj$clusterParameters
+
+  mdobj <- dpObj$mixingDistribution
+
+  for (i in 1:numLabels) {
+    pts <- y[which(clusterLabels == i), , drop = FALSE]
+
+    post_draw <- PosteriorDraw(mdobj, pts)
+
+    for (j in seq_along(clusterParams)) {
+      clusterParams[[j]][, , i] <- post_draw[[j]]
+    }
+
+  }
+
+  dpObj$clusterParameters <- clusterParams
+  return(dpObj)
+}
+#'@export
 ClusterParameterUpdate.nonconjugate <- function(dpObj) {
 
   y <- dpObj$data
