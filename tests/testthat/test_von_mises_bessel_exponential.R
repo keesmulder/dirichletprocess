@@ -130,7 +130,9 @@ test_that("Development tests", {
   dpvmintd <- Initialise(dpvm)
   str(dpvmintd)
 
-  dpfit <- Fit(dpvmintd, 10)
+  dpfit <- Fit(dpvmintd, 100)
 
   graph <- plot(dpfit, likelihood = TRUE, single = TRUE); graph
+  # graph
+  # plot(density(x))
 })
