@@ -37,20 +37,28 @@ ClusterParameterUpdate.conjugate <- function(dpObj) {
   dpObj$clusterParameters <- clusterParams
   return(dpObj)
 }
+
 #'@export
 ClusterParameterUpdate.ic_conjugate <- function(dpObj) {
 
   y <- dpObj$data
+  numLabels <- dpObj$numberClusters
 
-  y_imp <- numeric(nrow(y))
+  clusterLabels <- dpObj$clusterLabels
+  clusterParams <- dpObj$clusterParameters
 
-  for (i in seq_len(nrow(y))) {
-    if (identical(y[i, 1], y[i, 2])) {
-      y_imp[i] <- y[i, 1]
-    } else {
-      y_imp[i] <- PosteriorPredictiveSampleCurrent(dpobj)
-    }
+  y_imp <- IntervalCensoredDraw(dpobj)
+
+
+  is_censored <- which(y[, 1] != y[,2])
+  cens_cl    <- clusterLabels[is_censored]
+  y_imp <- y[, 1]
+  for (cens_i in is_censored) {
+      y_imp[cens_i] <-
   }
+
+
+
 
 
 
