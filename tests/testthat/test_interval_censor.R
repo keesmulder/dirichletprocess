@@ -38,8 +38,8 @@ test_that("Interval censoring in dp object", {
 
   dpvm     <- DirichletProcessCreate(y, md)
 
+  # We can intialize the ic data.
   DrawInitialIntervalCensored(dpvm)
-
 
   dpvmintd <- Initialise(dpvm)
   dpfit <- Fit(dpvmintd, 100)

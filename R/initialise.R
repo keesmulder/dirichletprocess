@@ -29,6 +29,25 @@ Initialise.conjugate <- function(dpObj, posterior = TRUE, m=NULL, verbose=NULL) 
   return(dpObj)
 }
 
+#' @export
+Initialise.ic_conjugate <- function(dpObj, posterior = TRUE, m=NULL, verbose=NULL) {
+
+  dpObj$clusterLabels <- rep_len(1, dpObj$n)
+  dpObj$numberClusters <- 1
+  dpObj$pointsPerCluster <- dpObj$n
+
+  y_imp <- DrawInitialIntervalCensored(dpObj)
+
+  if (posterior) {
+    dpObj$clusterParameters <- PosteriorDraw(dpObj$mixingDistribution, y_imp, 1)
+  } else {
+    dpObj$clusterParameters <- PriorDraw(dpObj$mixingDistribution, 1)
+  }
+  dpObj <- InitialisePredictive.ic_conjugate(dpObj, y_imp)
+
+  return(dpObj)
+}
+
 #'@export
 Initialise.nonconjugate <- function(dpObj, posterior = TRUE, m = 3, verbose = TRUE) {
 
@@ -63,6 +82,13 @@ InitialisePredictive <- function(dpObj) UseMethod("InitialisePredictive", dpObj)
 InitialisePredictive.conjugate <- function(dpObj) {
 
   dpObj$predictiveArray <- Predictive(dpObj$mixingDistribution, dpObj$data)
+
+  return(dpObj)
+}
+
+InitialisePredictive.ic_conjugate <- function(dpObj, y_imp) {
+
+  dpObj$predictiveArray <- Predictive(dpObj$mixingDistribution, y_imp)
 
   return(dpObj)
 }
