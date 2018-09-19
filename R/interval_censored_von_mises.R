@@ -16,7 +16,17 @@ circ_in_interval <- function(x, lb, ub) {
 }
 
 
-
+#' Create a von Mises interval censored mixing distribution
+#'
+#'@param priorParameters Prior parameters for the base measure which are, in
+#'  order, (mu_0, R_0, c).
+#'
+#'@return Mixing distribution object
+#'@export
+vonMisesICMixtureCreate <- function(priorParameters){
+  mdobj <- MixingDistribution("vonmises", priorParameters, "ic_conjugate")
+  return(mdobj)
+}
 
 #' Sample from the von Mises distribution with interval constraints.
 #'
