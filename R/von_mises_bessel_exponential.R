@@ -122,8 +122,11 @@ PosteriorDraw.vonmises <- function(mdobj, x, n = 1, nsamp = 3) {
 
 Predictive.vonmises <- function(mdobj, x) {
 
-  predictiveArray <- numeric(length(x))
+  # If uninformative prior, return 1, because the predictive array will be the
+  # same for all data points.
+  if (mdobj$priorParameters[2] == 0) return(1)
 
+  predictiveArray <- numeric(length(x))
   for (i in seq_along(x)) {
 
     PosteriorParameters_calc <- PosteriorParameters(mdobj, x[i])
