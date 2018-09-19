@@ -2,6 +2,10 @@ ClusterLabelChange <- function(dpObj, x, newLabel, currentLabel, ...){
   UseMethod("ClusterLabelChange", dpObj)
 }
 
+ClusterLabelChange.ic_conjugate <- function(dpObj, i, newLabel, currentLabel) {
+  ClusterLabelChange.conjugate(dpObj, i, newLabel, currentLabel)
+}
+
 ClusterLabelChange.conjugate <- function(dpObj, i, newLabel, currentLabel) {
 
   x <- dpObj$data[i, , drop = FALSE]

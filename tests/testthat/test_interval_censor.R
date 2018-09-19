@@ -30,8 +30,13 @@ test_that("Interval censoring in dp object", {
   n <- 100
   y_ast <- rnorm(n) %% (2*pi)
   #generate sample data
-  y <- cbind(y_ast,
+  y <- cbind(y_ast - sample(0:1, n, replace = TRUE) * abs(rnorm(n)),
              y_ast + sample(0:1, n, replace = TRUE) * abs(rnorm(n))) %% (2*pi)
+
+
+  regvm <- DirichletProcessCreate(y_ast, vonMisesMixtureCreate(c(0, 0, 1)))
+  regfit <- Fit(Initialise(regvm), 100)
+  plot(regfit)
 
   md <- vonMisesICMixtureCreate(c(0, 0, 1))
 
@@ -40,8 +45,9 @@ test_that("Interval censoring in dp object", {
   # We can intialize the ic data.
   DrawInitialIntervalCensored(dpvm)
 
+
   dpvmintd <- Initialise(dpvm)
-  dpfit <- Fit(dpvmintd, 100)
+  dpfit <- Fit(dpvmintd, 1000)
 
 
   plot(dpfit)

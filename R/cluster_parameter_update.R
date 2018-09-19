@@ -46,7 +46,7 @@ ClusterParameterUpdate.ic_conjugate <- function(dpObj) {
   clusterLabels <- dpObj$clusterLabels
   clusterParams <- dpObj$clusterParameters
 
-  y_imp <- IntervalCensoredDraw(dpobj)
+  y_imp <- IntervalCensoredDraw(dpObj)
 
   numLabels <- dpObj$numberClusters
 

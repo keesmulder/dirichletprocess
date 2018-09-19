@@ -185,7 +185,7 @@ DrawInitialIntervalCensored.vonmises <- function(dpobj) {
 
   y_imp[cens_idx] <- runif(length(cens_idx), y[cens_idx, 1], y[cens_idx, 2])
 
-  y_imp %% (2*pi)
+  matrix(y_imp %% (2*pi))
 }
 
 
@@ -216,7 +216,7 @@ IntervalCensoredDraw.vonmises <- function(dpobj,
                              max_attempts = max_attempts)
   }
 
-  return(matrix(y_imp))
+  matrix(y_imp)
 }
 
 
