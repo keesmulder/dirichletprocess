@@ -168,22 +168,24 @@ rvm_ic <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi,
   }
 }
 
-
+#' @export
 DrawInitialIntervalCensored <- function(dpobj) {
   UseMethod("DrawInitialIntervalCensored", dpobj)
 }
+
+#' @export
 DrawInitialIntervalCensored.vonmises <- function(dpobj) {
   y <- dpobj$data
   y_imp <- y[, 1]
 
   cens_idx   <- which(y[, 1] != y[,2])
 
-  rev_order_idx <- y[cens_idx, 1] > y[cens_idx, 2]
+  rev_order_idx <- y[, 1] > y[, 2]
   y[rev_order_idx, 2] <-  y[rev_order_idx, 2] + 2*pi
 
   y_imp[cens_idx] <- runif(length(cens_idx), y[cens_idx, 1], y[cens_idx, 2])
 
-  y_imp
+  y_imp %% (2*pi)
 }
 
 
