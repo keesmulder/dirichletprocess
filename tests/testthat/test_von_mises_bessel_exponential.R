@@ -36,10 +36,7 @@ test_that("Von Mises Posterior Draw", {
 
 test_that("Von Mises Predictive", {
 
-
   pred_array <- Predictive(vonmises_object_test, matrix(data_test, ncol = 1))
-
-
 
   expect_equal(length(Predictive(vonmises_object_test, data_test)), length(data_test))
 })
@@ -125,10 +122,8 @@ test_that("Development tests", {
   # curve(dvm(1, priPar[1], priPar[2] * x), 0, 100)
 
   dpvm     <- DirichletProcessCreate(x, vonmisesMD)
-  str(dpvm)
 
   dpvmintd <- Initialise(dpvm)
-  str(dpvmintd)
 
   dpfit <- Fit(dpvmintd, 100)
 
