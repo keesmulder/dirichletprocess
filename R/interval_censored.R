@@ -156,7 +156,6 @@ rvm_ic <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi,
       rvm_ic_reject(n, mu, kp, lb, ub, max_attempts)
     }
   }
-
 }
 
 
@@ -164,7 +163,10 @@ rvm_ic <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi,
 
 IntervalCensoredDraw <- function(dpobj) UseMethod("IntervalCensoredDraw", dpobj)
 
-IntervalCensoredDraw.vonMises <- function(dpobj) {
+IntervalCensoredDraw.vonMises <- function(dpobj,
+                                          method = "adaptive",
+                                          adaptive_cutoff = .1,
+                                          max_attempts = 10000) {
 
   y <- dpobj$data
   y_imp <- y[, 1]
@@ -174,15 +176,16 @@ IntervalCensoredDraw.vonMises <- function(dpobj) {
 
   cens_idx   <- which(y[, 1] != y[,2])
   cens_cl    <- clusterLabels[cens_idx]
-  cens_clust <- unique(cens_cl)
 
+  for (cens_yi in cens_idx) {
 
-  for (clust_i in cens_clust) {
-    y_this_clust <- which(clusterLabels == clust_i)
-    y_imp[y_this_clust] <- rvmc(length(y_this_clust),
-                                clusterParams[[1]][, , clust_i, drop = FALSE],
-                                clusterParams[[2]][, , clust_i, drop = FALSE]
-    )
+    clust_i <- clusterLabels[cens_yi]
+    y_imp[cens_yi] <- rvm_ic(1,
+                             mu = clusterParams[[1]][, , clust_i, drop = FALSE],
+                             kp = clusterParams[[2]][, , clust_i, drop = FALSE],
+                             lb = y[cens_yi, 1], ub = y[cens_yi, 2],
+                             method = method, adaptive_cutoff = adaptive_cutoff,
+                             max_attempts = max_attempts)
   }
 
   return(matrix(y_imp))
