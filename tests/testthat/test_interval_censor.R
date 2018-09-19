@@ -18,6 +18,9 @@ test_that("pvm approximation is accurate", {
 
 
 test_that("Interval censoring works", {
+  x <- rvm_ic(1000, 2, 4, 1, 1.5)
 
+  expect_false(any(x < 1))
+  expect_false(any(x >1.5))
 
 })
