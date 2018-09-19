@@ -14,6 +14,12 @@ ClusterComponentUpdate <- function(dpObj){
   UseMethod("ClusterComponentUpdate", dpObj)
 }
 
+
+#'@export
+ClusterComponentUpdate.ic_conjugate <- function(dpObj) {
+  ClusterComponentUpdate.conjugate(dpObj)
+}
+
 #'@export
 ClusterComponentUpdate.conjugate <- function(dpObj) {
 

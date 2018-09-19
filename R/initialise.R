@@ -36,7 +36,10 @@ Initialise.ic_conjugate <- function(dpObj, posterior = TRUE, m=NULL, verbose=NUL
   dpObj$numberClusters <- 1
   dpObj$pointsPerCluster <- dpObj$n
 
+  dpObj$interval_data <- dpObj$data
+
   y_imp <- DrawInitialIntervalCensored(dpObj)
+  dpObj$data <- y_imp
 
   if (posterior) {
     dpObj$clusterParameters <- PosteriorDraw(dpObj$mixingDistribution, y_imp, 1)

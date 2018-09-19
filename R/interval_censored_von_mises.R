@@ -197,7 +197,7 @@ IntervalCensoredDraw.vonmises <- function(dpobj,
                                           adaptive_cutoff = .1,
                                           max_attempts = 10000) {
 
-  y <- dpobj$data
+  y <- dpobj$interval_data
   y_imp <- y[, 1]
 
   clusterLabels <- dpobj$clusterLabels

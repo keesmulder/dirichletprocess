@@ -27,7 +27,6 @@ test_that("Interval censoring works", {
 
 test_that("Interval censoring in dp object", {
 
-
   n <- 100
   y_ast <- rnorm(n) %% (2*pi)
   #generate sample data
