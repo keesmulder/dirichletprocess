@@ -41,26 +41,12 @@ ClusterParameterUpdate.conjugate <- function(dpObj) {
 #'@export
 ClusterParameterUpdate.ic_conjugate <- function(dpObj) {
 
-  y <- dpObj$data
   numLabels <- dpObj$numberClusters
 
   clusterLabels <- dpObj$clusterLabels
   clusterParams <- dpObj$clusterParameters
 
   y_imp <- IntervalCensoredDraw(dpobj)
-
-
-  is_censored <- which(y[, 1] != y[,2])
-  cens_cl    <- clusterLabels[is_censored]
-  y_imp <- y[, 1]
-  for (cens_i in is_censored) {
-      y_imp[cens_i] <-
-  }
-
-
-
-
-
 
   numLabels <- dpObj$numberClusters
 
@@ -70,7 +56,7 @@ ClusterParameterUpdate.ic_conjugate <- function(dpObj) {
   mdobj <- dpObj$mixingDistribution
 
   for (i in 1:numLabels) {
-    pts <- y[which(clusterLabels == i), , drop = FALSE]
+    pts <- y_imp[which(clusterLabels == i), , drop = FALSE]
 
     post_draw <- PosteriorDraw(mdobj, pts)
 
@@ -83,6 +69,9 @@ ClusterParameterUpdate.ic_conjugate <- function(dpObj) {
   dpObj$clusterParameters <- clusterParams
   return(dpObj)
 }
+
+
+
 #'@export
 ClusterParameterUpdate.nonconjugate <- function(dpObj) {
 
