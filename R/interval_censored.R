@@ -16,23 +16,7 @@ circ_in_interval <- function(x, lb, ub) {
 }
 
 
-dvm_approx <- function(x, mu= 0, kp = 1) sqrt(kp) * exp(kp * (cos(x - mu) - 1)) / sqrt(2*pi)
-dvm_taylor <- function(x, mu= 0, kp = 1) {
-  (exp(kp) -
-     exp(kp) * kp * (x - mu)^2 / 2 +
-     exp(kp) * kp * (3*kp + 1) * (x - mu)^4 / 24 -
-     exp(kp) * kp * (15*kp^2 + 15*kp + 1) * (x - mu)^6 / 720
 
-  ) * exp(-kp) * sqrt(kp) / sqrt(2*pi)
-}
-
-dvm_taylor2 <- function(x, mu= 0, kp = 1) {
-                                         * exp(-kp) * sqrt(kp) / sqrt(2*pi)
-}
-
-curve(dvm(x, 3, 1), 0, 2*pi, ylim = c(0, 1))
-curve(dvm_approx(x, 3, 1), 0, 2*pi, add = TRUE, col = "blue")
-curve(dvm_taylor(x, 3, 1), 0, 2*pi, add = TRUE, col = "red")
 
 #' Sample from the von Mises distribution with interval constraints.
 #'
@@ -53,9 +37,9 @@ rvm_ic_reject <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi, max_attempts = 1
   lb <- lb %% (2*pi)
   ub <- ub %% (2*pi)
 
-  attempts <- 0
 
   replicate(n, {
+    attempts <- 0
 
     while (TRUE) {
 
@@ -80,13 +64,28 @@ rvm_ic_reject <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi, max_attempts = 1
 rvm_ic_envelope <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi, max_pdf, max_attempts = 1000) {
 
 
+  lb_pdf <- dvm(lb, mu, kp)
+  ub_pdf <- dvm(ub, mu, kp)
+  mu_pdf <- dvm(0, 0, kp)
+
+
+  mu_in_interval <- circ_in_interval(mu, lb, ub)
+
+  # If mu is in the interval, it is the highest point. Otherwise, either the
+  # lower bound or the upper bound is the maximum.
+  if (mu_in_interval) {
+    max_pdf <- mu_pdf
+  } else {
+    max_pdf <- max(lb_pdf, ub_pdf)
+  }
+
   lb <- lb %% (2*pi)
   ub <- ub %% (2*pi)
 
 
   replicate(n, {
-
     attempts <- 0
+
     while (TRUE) {
       attempts <- attempts + 1
 
@@ -106,6 +105,23 @@ rvm_ic_envelope <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi, max_pdf, max_a
   }) %% (2*pi)
 }
 
+# Von Mises cdf approximation by normal.
+pvm_normal_approx <- function(mu, kp, lb, ub) {
+
+  # Ensure the right format for the following calculations.
+  rot_lb <- (lb - mu + pi) %% (2*pi)
+  rot_ub <- (ub - mu + pi) %% (2*pi)
+
+  # Estimate of the acceptance rate for the rejection algorithm.
+  if (rot_lb < rot_ub) {
+    est_acc <- pnorm(rot_ub, mean = pi, sd = 1/sqrt(kp)) - pnorm(rot_lb, mean = pi, sd = 1/sqrt(kp))
+  } else {
+    est_acc <- 1 - pnorm(rot_ub,  mean = pi, sd = 1/sqrt(kp)) - pnorm(rot_lb,  mean = pi, sd = 1/sqrt(kp))
+  }
+  est_acc
+}
+
+
 #' Sample from the von Mises distribution with interval constraints.
 #'
 #' @param n Number of required samples.
@@ -120,28 +136,25 @@ rvm_ic_envelope <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi, max_pdf, max_a
 #' @examples
 #' x <- rvm_ic(10000, 0, 4, 5, 1)
 #' hist(x, breaks = 100)
-rvm_ic <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi, method = "reject", max_attempts = 1000) {
-
-  lb_pdf <- dvm(lb, mu, kp)
-  ub_pdf <- dvm(ub, mu, kp)
-  mu_pdf <- dvm(0, 0, kp)
-
-  mu_in_interval <- circ_in_interval(mu, lb, ub)
-
-  # If mu is in the interval, it is the highest point. Otherwise, either the
-  # lower bound or the upper bound is the maximum.
-  if (mu_in_interval) {
-    max_pdf <- mu_pdf
-  } else {
-    max_pdf <- max(lb_pdf, ub_pdf)
-  }
+rvm_ic <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi,
+                   method = "adaptive", adaptive_cutoff = .1,
+                   max_attempts = 1000) {
 
   if (method == "reject") {
-
+    rvm_ic_reject(n, mu, kp, lb, ub, max_attempts)
   } else if (method == "envelope") {
-
+    rvm_ic_envelope(n, mu, kp, lb, ub, max_attempts)
   } else if (method == "adaptive") {
-    env_sample <- rvm_ic_envelope(n, mu, kp, lb, ub, max_pdf)
+
+    # Estimated acceptance rate of the rejection algorithm.
+    estimated_acceptance <- pvm_normal_approx(mu, kp, lb, ub)
+
+    # If the acceptance rate is too low,
+    if (estimated_acceptance < adaptive_cutoff) {
+      rvm_ic_envelope(n, mu, kp, lb, ub, max_attempts)
+    } else {
+      rvm_ic_reject(n, mu, kp, lb, ub, max_attempts)
+    }
   }
 
 }
