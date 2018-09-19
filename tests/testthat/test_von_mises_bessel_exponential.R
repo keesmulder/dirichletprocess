@@ -119,13 +119,14 @@ test_that("Development tests", {
   priPar     <- matrix(c(0, 0, 1), ncol = 3)
   vonmisesMD <-  MixingDistribution("vonmises", priPar, "conjugate")
 
+  dirichletprocess:::Predictive.vonmises(vonmisesMD, x)
   # curve(dvm(1, priPar[1], priPar[2] * x), 0, 100)
 
   dpvm     <- DirichletProcessCreate(x, vonmisesMD)
 
   dpvmintd <- Initialise(dpvm)
 
-  dpfit <- Fit(dpvmintd, 100)
+  dpfit <- Fit(dpvmintd, 30)
 
   graph <- plot(dpfit, likelihood = TRUE, single = TRUE); graph
   # graph

@@ -124,7 +124,7 @@ Predictive.vonmises <- function(mdobj, x) {
 
   # If uninformative prior, only do this once because the predictive will be the
   # same for all data points.
-  if (mdobj$priorParameters[2] == 0) x <- x[1]
+  # if (mdobj$priorParameters[2] == 0) x <- x[1]
 
   predictiveArray <- numeric(length(x))
   for (i in seq_along(x)) {
