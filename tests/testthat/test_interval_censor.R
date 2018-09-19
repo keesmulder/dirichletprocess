@@ -21,21 +21,25 @@ test_that("Interval censoring works", {
   x <- rvm_ic(1000, 2, 4, 1, 1.5)
 
   expect_false(any(x < 1))
-  expect_false(any(x >1.5))
+  expect_false(any(x > 1.5))
 
 })
 
 test_that("Interval censoring in dp object", {
 
+
   n <- 100
   y_ast <- rnorm(n) %% (2*pi)
   y <- cbind(y_ast, y_ast + sample(0:1, n, replace = TRUE) * abs(rnorm(n)))  #generate sample data
-  dp <- vonMisesMixtureCreate()
-  dp <- Fit(dp, 1000, progressBar = FALSE)
 
-  x <- rvm_ic(1000, 2, 4, 1, 1.5)
+  md <- vonMisesMixtureCreate(c(0, 0, 1))
 
-  expect_false(any(x < 1))
-  expect_false(any(x > 1.5))
+
+  dpvm     <- DirichletProcessCreate(y, md)
+  dpvmintd <- Initialise(dpvm)
+  dpfit <- Fit(dpvmintd, 100)
+
+
+  plot(dpfit)
 
 })
