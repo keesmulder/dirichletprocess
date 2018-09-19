@@ -163,7 +163,7 @@ rvm_ic <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi,
 
 IntervalCensoredDraw <- function(dpobj) UseMethod("IntervalCensoredDraw", dpobj)
 
-IntervalCensoredDraw.vonMises <- function(dpobj,
+IntervalCensoredDraw.vonmises <- function(dpobj,
                                           method = "adaptive",
                                           adaptive_cutoff = .1,
                                           max_attempts = 10000) {
