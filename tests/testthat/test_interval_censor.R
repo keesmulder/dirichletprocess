@@ -32,7 +32,7 @@ test_that("Interval censoring in dp object", {
   y_ast <- rnorm(n) %% (2*pi)
   y <- cbind(y_ast, y_ast + sample(0:1, n, replace = TRUE) * abs(rnorm(n)))  #generate sample data
 
-  md <- vonMisesMixtureCreate(c(0, 0, 1))
+  md <- vonMisesICMixtureCreate(c(0, 0, 1))
 
 
   dpvm     <- DirichletProcessCreate(y, md)
