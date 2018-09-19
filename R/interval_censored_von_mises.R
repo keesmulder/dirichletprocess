@@ -204,7 +204,6 @@ IntervalCensoredDraw.vonmises <- function(dpobj,
   clusterParams <- dpobj$clusterParameters
 
   cens_idx   <- which(y[, 1] != y[,2])
-  cens_cl    <- clusterLabels[cens_idx]
 
   for (cens_yi in cens_idx) {
 
