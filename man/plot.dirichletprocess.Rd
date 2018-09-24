@@ -4,18 +4,19 @@
 \alias{plot.dirichletprocess}
 \alias{plot_dirichletprocess_univariate}
 \alias{plot_dirichletprocess_multivariate}
-\alias{plot_dirichletprocess_vonmises}
+\alias{plot_dirichletprocess.vonmises}
 \title{Plot the Dirichlet process object}
 \usage{
 \method{plot}{dirichletprocess}(x, ...)
 
 plot_dirichletprocess_univariate(dpobj, likelihood = FALSE,
   single = TRUE, data_fill = "black", data_method = "density",
-  data_bw = NULL, ci_size = 0.05, xgrid_pts = 100, quant_pts = 100)
+  data_bw = NULL, ci_size = 0.05, xgrid_pts = 100, quant_pts = 100,
+  xlim = NA)
 
 plot_dirichletprocess_multivariate(dpobj)
 
-plot_dirichletprocess_vonmises(dpobj, ...)
+\method{plot_dirichletprocess}{vonmises}(dpobj, r = 0.7, ...)
 }
 \arguments{
 \item{x}{Dirichlet Process Object to plot}

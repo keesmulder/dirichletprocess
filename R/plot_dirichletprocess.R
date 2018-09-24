@@ -104,20 +104,19 @@ plot_dirichletprocess_multivariate <- function(dpobj) {
 
 
 #' @rdname plot.dirichletprocess
-plot_dirichletprocess_vonmises <- function(dpobj, r = .7, ...) {
+plot_dirichletprocess.vonmises <- function(dpobj, r = .7, ...) {
 
   dpobj$data <- dpobj$data %% (2*pi)
 
   base_plot <- plot_dirichletprocess_univariate(dpobj, xlim = c(0, 2*pi), ...)
-  base_plot <- plot_dirichletprocess_univariate(dpobj, xlim = c(0, 2*pi),
-                                                quant_pts   = 20,
-                                                data_method = "hist",
-                                                data_bw = .2)
-
 
   base_plot +
+    theme_void() +
+    theme(panel.grid.major.x = element_line(colour = "grey80")) +
     ylim(-r, NA) +
-    flexcircmix:::scale_x_circular() +
+    geom_abline(intercept = 0, slope = 0) +
+    flexcircmix::scale_x_circular(nticks = 4) +
     coord_polar()
+
 
 }

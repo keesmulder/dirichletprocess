@@ -118,6 +118,12 @@ test_that("von Mises plots", {
   dp <- Initialise(dp)
   dp <- Fit(dp, 100)
 
-  plot(dp, xgrid_pts = 40, quant_pts = 10)
+  plot(dp,
+       quant_pts   = 20,
+       xgrid_pts   = 20,
+       data_method = "hist",
+       data_bw = .2,
+       data_fill = rgb(.5, .5, .8, 1))
+
 
 })
