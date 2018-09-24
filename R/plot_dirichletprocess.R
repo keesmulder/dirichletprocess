@@ -30,7 +30,6 @@ plot_dirichletprocess.mvnormal <- function(dpobj, ...) {
   plot_dirichletprocess_multivariate(dpobj)
 }
 
-#' @export
 #' @rdname plot.dirichletprocess
 plot_dirichletprocess_univariate <- function(dpobj,
                                              likelihood  = FALSE,
@@ -90,7 +89,6 @@ plot_dirichletprocess_univariate <- function(dpobj,
   return(graph)
 }
 
-#' @export
 #' @rdname plot.dirichletprocess
 plot_dirichletprocess_multivariate <- function(dpobj) {
 
@@ -111,12 +109,12 @@ plot_dirichletprocess.vonmises <- function(dpobj, r = .7, ...) {
   base_plot <- plot_dirichletprocess_univariate(dpobj, xlim = c(0, 2*pi), ...)
 
   base_plot +
-    theme_void() +
-    theme(panel.grid.major.x = element_line(colour = "grey80")) +
-    ylim(-r, NA) +
-    geom_abline(intercept = 0, slope = 0) +
+    ggplot2::theme_void() +
+    ggplot2::theme(panel.grid.major.x = ggplot2::element_line(colour = "grey80")) +
+    ggplot2::ylim(-r, NA) +
+    ggplot2::geom_abline(intercept = 0, slope = 0) +
     flexcircmix::scale_x_circular(nticks = 4) +
-    coord_polar()
+    ggplot2::coord_polar()
 
 
 }
