@@ -94,3 +94,12 @@ plot_dirichletprocess_multivariate <- function(dpobj) {
   graph <- ggplot2::ggplot(plotFrame, ggplot2::aes_(x=~x1, y=~x2, colour=~Cluster)) + ggplot2::geom_point()
   return(graph)
 }
+
+
+
+
+#' @rdname plot.dirichletprocess
+plot_dirichletprocess_vonmises <- function(dpobj, ...) {
+  base_plot <- plot_dirichletprocess_univariate(dpobj, ...)
+
+}

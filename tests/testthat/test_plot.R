@@ -103,3 +103,21 @@ test_that("Plotting options", {
 
 })
 
+
+
+
+test_that("von Mises plots", {
+
+  library(flexcircmix)
+  library(circglmbayes)
+
+  x <- c(rnorm(100), rnorm(300, 2, .5))
+
+  md <- vonMisesMixtureCreate(c(0, 0, 1))
+  dp <- DirichletProcessCreate(x, md, c(4, 1))
+  dp <- Initialise(dp)
+  dp <- Fit(dp, 100)
+
+  plot(dp, xgrid_pts = 40, quant_pts = 10)
+
+})
