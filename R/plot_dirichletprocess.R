@@ -58,7 +58,7 @@ plot_dirichletprocess_univariate <- function(dpobj,
     stop("Unknown `data_method`.")
   }
 
-  if (is.na(xlim)) {
+  if (is.na(xlim[1])) {
     x_grid <- pretty(dpobj$data, n = xgrid_pts)
   } else {
     x_grid <- seq(xlim[1], xlim[2], length.out = xgrid_pts)
@@ -104,7 +104,20 @@ plot_dirichletprocess_multivariate <- function(dpobj) {
 
 
 #' @rdname plot.dirichletprocess
-plot_dirichletprocess_vonmises <- function(dpobj, ...) {
-  base_plot <- plot_dirichletprocess_univariate(dpobj, ...)
+plot_dirichletprocess_vonmises <- function(dpobj, r = .7, ...) {
+
+  dpobj$data <- dpobj$data %% (2*pi)
+
+  base_plot <- plot_dirichletprocess_univariate(dpobj, xlim = c(0, 2*pi), ...)
+  base_plot <- plot_dirichletprocess_univariate(dpobj, xlim = c(0, 2*pi),
+                                                quant_pts   = 20,
+                                                data_method = "hist",
+                                                data_bw = .2)
+
+
+  base_plot +
+    ylim(-r, NA) +
+    flexcircmix:::scale_x_circular() +
+    coord_polar()
 
 }
