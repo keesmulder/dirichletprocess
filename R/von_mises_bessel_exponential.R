@@ -102,8 +102,8 @@ PosteriorDraw.vonmises <- function(mdobj, x, n = 1, nsamp = 3) {
   # if (n_n < 0 | R_n < -1) {
   #   stop("Posterior parameters out of bounds.")
   # }
-  if (n_n < 0) n_n <- 0
-  if (R_n < -1) R_n <- -1
+  if (!isTRUE(n_n >  0)) n_n <- 0
+  if (!isTRUE(R_n > -1)) R_n <- -1
 
   # Random starting value.
   mu <- runif(n, -pi, pi)
