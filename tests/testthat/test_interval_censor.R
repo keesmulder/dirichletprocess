@@ -50,6 +50,6 @@ test_that("Interval censoring in dp object", {
   dpfit <- Fit(dpvmintd, 100)
 
 
-  plot(dpfit)
+  # plot(dpfit, xgrid_pts = 50, quant_pts = 20, data_method = "hist", data_bw = .3)
 
 })
