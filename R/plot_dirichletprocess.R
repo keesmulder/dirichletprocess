@@ -58,7 +58,6 @@ plot_dirichletprocess_univariate <- function(x,
   }
 
   if (is.na(xlim[1])) {
-    x_grid <- pretty(dpobj$data, n = xgrid_pts)
     x_grid <- pretty(x$data, n = xgrid_pts)
   } else {
     x_grid <- seq(xlim[1], xlim[2], length.out = xgrid_pts)

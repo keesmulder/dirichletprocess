@@ -105,7 +105,6 @@ test_that("Plotting options", {
 
 
 
-
 test_that("von Mises plots", {
 
   library(flexcircmix)
@@ -130,6 +129,7 @@ test_that("von Mises plots", {
 
   expect_is(p, c("gg", "ggplot"))
 })
+
 test_that("Diagnostic plots", {
   dp <- Fit(DirichletProcessGaussian(rnorm(10)), 50,
             progressBar = interactive())
@@ -141,3 +141,4 @@ test_that("Diagnostic plots", {
   expect_is(ClusterTraceplot(dp), c("gg", "ggplot"))
   expect_is(LikelihoodTraceplot(dp), c("gg", "ggplot"))
 
+})
