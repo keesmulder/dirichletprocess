@@ -7,6 +7,8 @@ Authors@R: c(
             person("Dean", "Markwick", email="dean.markwick@talk21.com", role=c("aut", "cre")),
             person("Kees", "Mulder", email="keestimmulder@gmail.com", role=c("ctb"),
              comment=c(ORCID="0000-0002-5387-3812"))
+            person("Kees", "Mulder", email="keestimmulder@gmail.com", role=c("ctb"), 
+            comment = c(ORCID = "0000-0002-5387-3812"))
           )
 Maintainer: Dean Markwick <dean.markwick@talk21.com>
 Description: Perform nonparametric Bayesian analysis using Dirichlet 
