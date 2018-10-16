@@ -26,7 +26,6 @@ DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
 
 #'Create a von Mises mixing distribution
 #'
-#'
 #'@param priorParameters Prior parameters for the base measure which are, in
 #'  order, (mu_0, R_0, c).
 #'

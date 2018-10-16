@@ -41,6 +41,25 @@ test_that("Von Mises Predictive", {
   expect_equal(length(Predictive(vonmises_object_test, data_test)), length(data_test))
 })
 
+
+
+
+test_that("Constructor function", {
+
+  n <- 100
+  y <- rnorm(n) %% (2*pi)
+
+  dp <- DirichletProcessVonMises(y, c(0, 0, 1), c(2, 3))
+  expect_s3_class(dp, "dirichletprocess")
+
+  dp <- Fit(dp, 4)
+
+  expect_s3_class(dp, "dirichletprocess")
+})
+
+
+
+
 test_that("Development tests", {
   skip("Skip dev tests")
 
@@ -132,3 +151,5 @@ test_that("Development tests", {
   # graph
   # plot(density(x))
 })
+
+

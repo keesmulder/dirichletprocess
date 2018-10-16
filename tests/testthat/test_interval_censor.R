@@ -18,7 +18,7 @@ test_that("pvm approximation is accurate", {
 
 
 test_that("Interval censoring works", {
-  x <- rvm_ic(1000, 2, 4, 1, 1.5)
+  x <- rvm_ic(100, 2, 4, 1, 1.5)
 
   expect_false(any(x < 1))
   expect_false(any(x > 1.5))
@@ -52,4 +52,23 @@ test_that("Interval censoring in dp object", {
 
   # plot(dpfit, xgrid_pts = 50, quant_pts = 20, data_method = "hist", data_bw = .3)
 
+})
+
+
+
+
+test_that("Constructor function", {
+
+  n <- 100
+  y_ast <- rnorm(n) %% (2*pi)
+  #generate sample data
+  y <- cbind(y_ast - sample(0:1, n, replace = TRUE) * abs(rnorm(n)),
+             y_ast + sample(0:1, n, replace = TRUE) * abs(rnorm(n))) %% (2*pi)
+
+  dp <- DirichletProcessICVonMises(y, c(0, 0, 1), c(2, 3))
+  expect_s3_class(dp, "dirichletprocess")
+
+  dp <- Fit(dp, 4)
+
+  expect_s3_class(dp, "dirichletprocess")
 })
