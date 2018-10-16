@@ -22,8 +22,8 @@ This is the constructor function to produce a \code{dirichletprocess} object
 with a Von Mises mixture kernel for (possibly) interval-censored data with
 unknown mean and unknown concentration kappa. The interval censored data is
 sampled from the interval according to the current distribution of each
-observation dictated by the DPM model. The base measure is conjugate to the
-posterior distribution.
+observation dictated by the DPM model. After sampling, the likelihood is simply
+conjugate to the base measure and thus the posterior.
 }
 \details{
 The base measure is \eqn{G_0 (\mu, \kappa \mid \gamma) = I_0(R \kappa)^{- n_0}
