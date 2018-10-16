@@ -130,3 +130,14 @@ test_that("von Mises plots", {
 
   expect_is(p, c("gg", "ggplot"))
 })
+test_that("Diagnostic plots", {
+  dp <- Fit(DirichletProcessGaussian(rnorm(10)), 50,
+            progressBar = interactive())
+
+  expect_error(DiagnosticPlots(dp), NA)
+
+  expect_is(AlphaTraceplot(dp), c("gg", "ggplot"))
+  expect_is(AlphaPriorPosteriorPlot(dp), c("gg", "ggplot"))
+  expect_is(ClusterTraceplot(dp), c("gg", "ggplot"))
+  expect_is(LikelihoodTraceplot(dp), c("gg", "ggplot"))
+

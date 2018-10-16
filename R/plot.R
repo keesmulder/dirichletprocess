@@ -21,6 +21,9 @@
 #' @param xgrid_pts Integer, the number of points on the x-axis to evaluate.
 #' @param quant_pts Integer, the number of posterior functions to use to obtain
 #'   the posterior and its interval.
+#' @param xlim Default NA. If a vector of length two, the limits on the x-axis
+#'   of the plot. If \code{NA} (default), the limits will be automatically
+#'   chosen.
 #' @param ... Further arguments, currently ignored.
 #' @return A ggplot object.
 #' @export
