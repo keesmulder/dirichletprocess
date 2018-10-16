@@ -186,7 +186,7 @@ rvm_ic <- function(n, mu = 0, kp = 1, lb = 0, ub = 2*pi,
     # Estimated acceptance rate of the rejection algorithm.
     estimated_acceptance <- pvm_normal_approx(mu, kp, lb, ub)
 
-    # If the acceptance rate is too low,
+    # If the acceptance rate is too low, sample with envelope.
     if (estimated_acceptance < adaptive_cutoff) {
       rvm_ic_envelope(n, mu, kp, lb, ub, max_attempts)
     } else {
