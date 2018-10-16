@@ -16,6 +16,33 @@ circ_in_interval <- function(x, lb, ub) {
 }
 
 
+#'Create an interval censored Dirichlet Mixture of Von Mises distributions
+#'
+#'This is the constructor function to produce a \code{dirichletprocess} object
+#'with a Von Mises mixture kernel for (possibly) interval-censored data with
+#'unknown mean and unknown concentration kappa. The interval censored data is
+#'sampled from the interval according to the current distribution of each
+#'observation dictated by the DPM model. The base measure is conjugate to the
+#'posterior distribution.
+#'
+#'The base measure is \eqn{G_0 (\mu, \kappa \mid \gamma) = I_0(R \kappa)^{- n_0}
+#'\exp(R_0 \kappa \cos(\mu - \mu_0))}.
+#'
+#'
+#'@param y Data,
+#'@param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0 , n_0)}
+#'@param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
+#'@return Dirichlet process object
+#'@export
+DirichletProcessICVonMises <- function(y, g0Priors = c(0, 1, 1),
+                                     alphaPriors = c(2, 4)) {
+
+  mdobj <- vonMisesICMixtureCreate(g0Priors)
+  dpobj <- DirichletProcessCreate(y, mdobj, alphaPriors)
+  dpobj <- Initialise(dpobj)
+  return(dpobj)
+}
+
 #' Create a von Mises interval censored mixing distribution
 #'
 #'@param priorParameters Prior parameters for the base measure which are, in
@@ -173,7 +200,6 @@ DrawInitialIntervalCensored <- function(dpobj) {
   UseMethod("DrawInitialIntervalCensored", dpobj)
 }
 
-#' @export
 DrawInitialIntervalCensored.vonmises <- function(dpobj) {
   y <- dpobj$data
   y_imp <- y[, 1]

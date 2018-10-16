@@ -9,12 +9,11 @@
 \usage{
 \method{plot}{dirichletprocess}(x, ...)
 
-plot_dirichletprocess_univariate(dpobj, likelihood = FALSE,
-  single = TRUE, data_fill = "black", data_method = "density",
-  data_bw = NULL, ci_size = 0.05, xgrid_pts = 100, quant_pts = 100,
-  xlim = NA)
+plot_dirichletprocess_univariate(x, likelihood = FALSE, single = TRUE,
+  data_fill = "black", data_method = "density", data_bw = NULL,
+  ci_size = 0.05, xgrid_pts = 100, quant_pts = 100, xlim = NA)
 
-plot_dirichletprocess_multivariate(dpobj)
+plot_dirichletprocess_multivariate(x)
 
 \method{plot_dirichletprocess}{vonmises}(dpobj, r = 0.7, ...)
 }
@@ -44,6 +43,10 @@ Defaults to "black".}
 
 \item{quant_pts}{Integer, the number of posterior functions to use to obtain
 the posterior and its interval.}
+
+\item{xlim}{Default NA. If a vector of length two, the limits on the x-axis
+of the plot. If \code{NA} (default), the limits will be automatically
+chosen.}
 }
 \value{
 A ggplot object.
