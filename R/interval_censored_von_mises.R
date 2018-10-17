@@ -29,15 +29,22 @@ circ_in_interval <- function(x, lb, ub) {
 #'\exp(R_0 \kappa \cos(\mu - \mu_0))}.
 #'
 #'
-#'@param y Data,
-#'@param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0 , n_0)}
-#'@param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
+#' @param y Data,
+#' @param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0 , n_0)}
+#' @param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
+#' @param muMargMethod Method for marginalization of prior mean. See
+#'   \code{\link{vonMisesMixtureCreate}}.
+#' @param n_samp Number of Gibbs samples before we assume draws from posterior
+#'  are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
+#'
 #'@return Dirichlet process object
 #'@export
 DirichletProcessICVonMises <- function(y, g0Priors = c(0, 1, 1),
-                                     alphaPriors = c(2, 4)) {
+                                     alphaPriors = c(2, 4),
+                                     muMargMethod = "marginal",
+                                     n_samp = 3) {
 
-  mdobj <- vonMisesICMixtureCreate(g0Priors)
+  mdobj <- vonMisesICMixtureCreate(g0Priors, muMargMethod, n_samp)
   dpobj <- DirichletProcessCreate(y, mdobj, alphaPriors)
   dpobj <- Initialise(dpobj)
   return(dpobj)
@@ -47,16 +54,33 @@ DirichletProcessICVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'
 #'@param priorParameters Prior parameters for the base measure which are, in
 #'  order, (mu_0, R_0, c).
+#' @param muMargMethod Method for marginalization of prior mean. See
+#'   \code{\link{vonMisesMixtureCreate}}.
+#' @param n_samp Number of Gibbs samples before we assume draws from posterior
+#'  are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
 #'
 #'@return Mixing distribution object
 #'@export
-vonMisesICMixtureCreate <- function(priorParameters, muMargSample = "marginal") {
+vonMisesICMixtureCreate <- function(priorParameters,
+                                    muMargMethod = "marginal",
+                                    n_samp = 3) {
 
   mdobj <- MixingDistribution("vonmises", priorParameters, "ic_conjugate")
 
+  mdobj$n_samp <- n_samp
+
   # If the prior mean direction mu_0 should be treated as unknown, add the
   # method to deal with this to the mixing distribution object.
-  if (is.na(priorParameters[1])) mdobj$muMargSample <- muMargSample
+  if (is.na(priorParameters[1])) {
+    if (muMargMethod == "sample") {
+      mdobj$muMargSample <- TRUE
+    } else if (muMargMethod == "marginal") {
+      mdobj$muMargSample <- FALSE
+    } else {
+      stop(paste("Unknown method for marginalizing out the prior",
+                 "mean direction. Select 'sample' or 'marginal'."))
+    }
+  }
 
   return(mdobj)
 }

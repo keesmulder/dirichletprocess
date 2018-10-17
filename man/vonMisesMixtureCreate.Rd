@@ -20,7 +20,9 @@ a prior mean is sampled uniformly at each iteration.}
 accepting the sample as an i.i.d. sample from the posterior. Higher values
 mean we can be more certain that the sampler works correctly, at the cost of
 computational time. The sampler mixes very fast, but different values can be
-attempted by means of sensitivity.}
+attempted by means of sensitivity. As a general recommendation, 2 is only
+approximately correct, 3 is close, and 4 performs almost as good as 100 or
+more.}
 }
 \value{
 Mixing distribution object

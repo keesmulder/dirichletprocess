@@ -12,12 +12,19 @@
 #'@param y Data
 #'@param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0, n_0)}
 #'@param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
+#'@param muMargMethod Method for marginalization of prior mean. See
+#'  \code{\link{vonMisesMixtureCreate}}.
+#'@param n_samp Number of Gibbs samples before we assume draws from posterior
+#'  are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
+#'
 #'@return Dirichlet process object
 #'@export
 DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
-                                     alphaPriors = c(2, 4)) {
+                                     alphaPriors = c(2, 4),
+                                     muMargMethod = "marginal",
+                                     n_samp = 3) {
 
-  mdobj <- vonMisesMixtureCreate(g0Priors)
+  mdobj <- vonMisesMixtureCreate(g0Priors, muMargMethod, n_samp)
   dpobj <- DirichletProcessCreate(y, mdobj, alphaPriors)
   dpobj <- Initialise(dpobj)
   return(dpobj)
@@ -36,7 +43,9 @@ DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'  accepting the sample as an i.i.d. sample from the posterior. Higher values
 #'  mean we can be more certain that the sampler works correctly, at the cost of
 #'  computational time. The sampler mixes very fast, but different values can be
-#'  attempted by means of sensitivity.
+#'  attempted by means of sensitivity. As a general recommendation, 2 is only
+#'  approximately correct, 3 is close, and 4 performs almost as good as 100 or
+#'  more.
 #'
 #'@return Mixing distribution object
 #'@export
@@ -125,7 +134,6 @@ PosteriorParameters.vonmises <- function(mdobj, x) {
       mu_n <- atan2(S, C)
       PosteriorParameters <- matrix(c(mu_n, R_n, n_n), ncol = 3)
       return(PosteriorParameters)
-
   }
 
   # If we don't marginalize or have sampled mu_0, compute the posterior
@@ -150,6 +158,17 @@ PosteriorParameters.vonmises <- function(mdobj, x) {
 Likelihood.vonmises <- function(mdobj, x, theta) dvm(x, theta[[1]], theta[[2]])
 
 
+one_vm_post_draw <- function(mun, rn, m, nsamp = 3) {
+  # Random starting value.
+  mu <- runif(1, -pi, pi)
+
+  for (i in 1:nsamp) {
+    kp <- rbesselexp2(1, mu, mun, rn, m)
+    mu <- rvmc(1, mun, rn * kp)
+  }
+  c(mu, kp)
+}
+
 
 PriorDraw.vonmises <- function(mdobj, n = 1) {
 
@@ -157,76 +176,59 @@ PriorDraw.vonmises <- function(mdobj, n = 1) {
   R_0  <- priorParameters[2]
   n_0  <- priorParameters[3]
 
-  # Random starting value.
-  mu <- runif(n, -pi, pi)
-
   if (n_0 < 0 | R_0 < -1) stop("Prior parameters out of bounds.")
 
-    # If mu_0 is NA, sample uniform prior mean mu_0.
+  # If mu_0 is NA, sample uniform prior mean mu_0.
   if (is.na(priorParameters[1])) {
 
     mu_0 <- runif(n, 0, 2*pi)
+    mukp <- vapply(mu_0, function(mu0i) {
+      one_vm_post_draw(mu0i, R_0, n_0, nsamp = mdobj$n_samp)
+      }, FUN.VALUE = c(0, 0))
 
-    for (i in 1:mdobj$n_samp) {
-
-      kp <- vapply(1:n, function(i) {
-        rbesselexp2(1, mu[i], mu_0[i], R_0, n_0)
-      }, FUN.VALUE = 0)
-      mu <- vapply(1:n, function(i) {
-        rvmc(1, mu_0[i], R_0 * kp[i])
-      }, FUN.VALUE = 0)
-    }
   } else {
-
     # Standard algorithm with given mu_0.
     mu_0 <- priorParameters[1]
-
-    for (i in 1:mdobj$n_samp) {
-
-      kp <- vapply(mu, function(mui) {
-        rbesselexp2(1, mui, mu_0, R_0, n_0)
-      }, FUN.VALUE = 0)
-      mu <- vapply(kp, function(kpi) {
-        rvmc(1, mu_0, R_0 * kpi)
-      }, FUN.VALUE = 0)
-    }
+    mukp <- replicate(n, one_vm_post_draw(mu_0, R_0, n_0, nsamp = mdobj$n_samp))
   }
 
-
-  theta <- list(mu = array(mu %% (2*pi), dim = c(1, 1, n)),
-                kp = array(kp, dim = c(1, 1, n)))
+  theta <- list(mu = array(mukp[1, ] %% (2*pi), dim = c(1, 1, n)),
+                kp = array(mukp[2, ], dim = c(1, 1, n)))
   return(theta)
 }
 
 
 PosteriorDraw.vonmises <- function(mdobj, x, n = 1) {
 
-  PosteriorParameters_calc <- PosteriorParameters(mdobj, x)
+  # If mu_0 is NA, and muMargSample is TRUE, sample uniform prior mean mu_0.
+  if (is.na(mdobj$priorParameters[1]) && mdobj$muMargSample) {
 
-  mu_n <- PosteriorParameters_calc[1]
-  R_n  <- PosteriorParameters_calc[2]
-  n_n  <- PosteriorParameters_calc[3]
+    PosteriorParameters_calc <- replicate(n, PosteriorParameters(mdobj, x))
 
-  # if (n_n < 0 | R_n < -1) {
-  #   stop("Posterior parameters out of bounds.")
-  # }
-  if (!isTRUE(n_n >  0)) n_n <- 0
-  if (!isTRUE(R_n > -1)) R_n <- -1
+    mu_n <- PosteriorParameters_calc[, , ][1, ]
+    R_n  <- PosteriorParameters_calc[, , ][2, ]
+    n_n  <- PosteriorParameters_calc[, , ][3, 1]
 
-  # Random starting value.
-  mu <- runif(n, -pi, pi)
-  for (i in 1:mdobj$n_samp) {
+    mukp <- vapply(1:n, function(i) {
+      one_vm_post_draw(mu_n[i], R_n[i], n_n, nsamp = mdobj$n_samp)
+    }, FUN.VALUE = c(0, 0))
 
-    kp <- vapply(mu, function(mui) {
-      rbesselexp2(1, mui, mu_n, R_n, n_n)
-    }, FUN.VALUE = 0)
-    mu <- vapply(kp, function(kpi) {
-      rvmc(1, mu_n, R_n * kpi)
-    }, FUN.VALUE = 0)
+  } else {
+    # Standard algorithm with given mu_0 or marginalized without sampling.
+    PosteriorParameters_calc <- PosteriorParameters(mdobj, x)
+
+    mu_n <- PosteriorParameters_calc[1]
+    R_n  <- PosteriorParameters_calc[2]
+    n_n  <- PosteriorParameters_calc[3]
+
+    if (!isTRUE(n_n >= 1)) n_n <- 1
+    if (!isTRUE(R_n > -1)) R_n <- -1
+
+    mukp <- replicate(n, one_vm_post_draw(mu_n, R_n, n_n, nsamp = mdobj$n_samp))
   }
 
-  theta <- list(mu = array(mu, dim = c(1, 1, n)),
-                kp = array(kp, dim = c(1, 1, n)))
+  theta <- list(mu = array(mukp[1, ] %% (2*pi), dim = c(1, 1, n)),
+                kp = array(mukp[2, ], dim = c(1, 1, n)))
   return(theta)
 }
 

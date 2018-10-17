@@ -1,9 +1,8 @@
 context("Von Mises Mixing Distribution Functions")
 
 data_test <-  rvmc(10, 3, 2)
-priorParameters_test = matrix(c(1, 0, 2), ncol = 3)
 
-vonmises_object_test = MixingDistribution("vonmises", priorParameters_test, "conjugate")
+vonmises_object_test = vonMisesMixtureCreate(c(1, 0, 2))
 
 test_that("Von Mises Class", {
 
