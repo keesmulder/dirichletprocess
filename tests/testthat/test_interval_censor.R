@@ -72,3 +72,7 @@ test_that("Constructor function", {
 
   expect_s3_class(dp, "dirichletprocess")
 })
+
+
+
+
