@@ -50,8 +50,14 @@ DirichletProcessICVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'
 #'@return Mixing distribution object
 #'@export
-vonMisesICMixtureCreate <- function(priorParameters){
+vonMisesICMixtureCreate <- function(priorParameters, muMargSample = "marginal") {
+
   mdobj <- MixingDistribution("vonmises", priorParameters, "ic_conjugate")
+
+  # If the prior mean direction mu_0 should be treated as unknown, add the
+  # method to deal with this to the mixing distribution object.
+  if (is.na(priorParameters[1])) mdobj$muMargSample <- muMargSample
+
   return(mdobj)
 }
 
