@@ -193,9 +193,14 @@ test_that("Development tests", {
 
   ellip_approx <- (2/pi) * (r0 + R) * pracma::ellipke(4 * (r0 * R) / (r0 + R)^2)$e
 
+  sampling_approx <- function(n, C = 4, S = 3, r0 = 3.5) {
+    th <- runif(n, 0, 2*pi)
+    mean( sqrt((C + r0 * cos(th))^2 + (S + r0 * sin(th))^2))
+  }
+
   # They are equal.
   round(ellip_approx, 6) == round(integ_approx, 6)
-
+  sampling_approx(1000000)
 
   # Which is faster?
   ellip_fun <- function(tol = .00001) (2/pi) * (r0 + R) * pracma::ellipke(4 * (r0 * R) / (r0 + R)^2, tol = tol)$e
@@ -203,12 +208,15 @@ test_that("Development tests", {
   ellip_fun()
   integ_fun()
 
-  microbenchmark(
+  microbenchmark::microbenchmark(
     ellip_fun(.00001),
+    ellip_fun(.0001),
+    ellip_fun(.001),
     ellip_fun(.01),
     ellip_fun(.1),
     integ_fun(),
-    times = 10000
+    sampling_approx(10000),
+    times = 1000
   )
   # only a little bit faster.
 
@@ -257,8 +265,53 @@ test_that("Development tests", {
 
 
   # Mu_0 Marginalization
-  hist(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1)), th, 1000)[[1]])
-  hist(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, 1000)[[1]])
+  n_draw <- 10000
+  plot(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1)), th, n_draw)[[1]]))
+  lines(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, n_draw)[[1]]), col = "red")
+  lines(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, n_draw)[[1]]), col = "red")
+  lines(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, n_draw)[[1]]), col = "red")
+
+  plot(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1)), th, n_draw)[[2]]))
+  lines(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, n_draw)[[2]]), col = "red")
+  lines(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, n_draw)[[2]]), col = "red")
+  lines(density(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, n_draw)[[2]]), col = "red")
+
+  pold <- PosteriorDraw.vonmises
+
+  pcur <- PosteriorDraw.vonmises
+
+  n_draw <- 10
+  md1 <- vonMisesMixtureCreate(c(NA,.8,1), n_samp = 1)
+  md2 <- vonMisesMixtureCreate(c(NA,.8,1), n_samp = 2)
+  md3 <- vonMisesMixtureCreate(c(NA,.8,1), n_samp = 3)
+  md4 <- vonMisesMixtureCreate(c(NA,.8,1), n_samp = 1)
+  microbenchmark::microbenchmark(
+    pold(md1, th, n_draw),
+    pcur(md1, th, n_draw),
+    pold(md2, th, n_draw),
+    pcur(md2, th, n_draw),
+    pold(md3, th, n_draw),
+    pcur(md3, th, n_draw),
+    times = 1000
+  )
+
+  # Check how many samples are sufficient
+  n_draw <- 300000
+  plot(density(pold(md3, th, n_draw)[[1]]))
+  lines(density(pold(md2, th, n_draw)[[1]]), col = "red")
+  lines(density(pold(md1, th, n_draw)[[1]]), col = "blue")
+  lines(density(pold(md4, th, n_draw)[[1]]), col = "goldenrod")
+
+  # Check how many samples are sufficient
+  n_draw <- 300000
+  plot(density(pold(md3,  th, n_draw)[[2]]))
+  lines(density(pold(md2, th, n_draw)[[2]]), col = "red")
+  lines(density(pold(md1, th, n_draw)[[2]]), col = "blue")
+  lines(density(pold(md4, th, n_draw)[[2]]), col = "goldenrod")
+
+
+
+  mdobj <- vonMisesMixtureCreate(c(NA, .8, 1), "sample")
 
 })
 
