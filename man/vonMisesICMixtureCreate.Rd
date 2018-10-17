@@ -4,7 +4,7 @@
 \alias{vonMisesICMixtureCreate}
 \title{Create a von Mises interval censored mixing distribution}
 \usage{
-vonMisesICMixtureCreate(priorParameters)
+vonMisesICMixtureCreate(priorParameters, muMargSample = "marginal")
 }
 \arguments{
 \item{priorParameters}{Prior parameters for the base measure which are, in

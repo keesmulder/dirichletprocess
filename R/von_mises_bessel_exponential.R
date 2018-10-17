@@ -28,8 +28,15 @@ DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'
 #'@param priorParameters Prior parameters for the base measure which are, in
 #'  order, (mu_0, R_0, c).
-#' @param muMargMethod
-#' @param n_samp
+#'@param muMargMethod Character; Method to deal with with marginalizing out the
+#'  prior mean mu_0. If \code{"marginal"}, the posterior parameters are computed
+#'  averaged over a uniform distribution on the prior mean. If \code{"sample"},
+#'  a prior mean is sampled uniformly at each iteration.
+#'@param n_samp Number of samples to generate from the Gibbs sampler before
+#'  accepting the sample as an i.i.d. sample from the posterior. Higher values
+#'  mean we can be more certain that the sampler works correctly, at the cost of
+#'  computational time. The sampler mixes very fast, but different values can be
+#'  attempted by means of sensitivity.
 #'
 #'@return Mixing distribution object
 #'@export
@@ -102,7 +109,6 @@ PosteriorParameters.vonmises <- function(mdobj, x) {
   } else {
       # When we don't sample the mean direction, we wish to marginalize by
       # taking the expectation over the uniform distribution on mu_0 for R_n.
-
       R_0  <- priorParameters[2]
       n_0  <- priorParameters[3]
 

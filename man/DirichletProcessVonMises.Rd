@@ -10,7 +10,7 @@ DirichletProcessVonMises(y, g0Priors = c(0, 1, 1), alphaPriors = c(2,
 \arguments{
 \item{y}{Data}
 
-\item{g0Priors}{Base Distribution Priors \eqn{\gamma = (\mu_0, R_0 , n_0)}}
+\item{g0Priors}{Base Distribution Priors \eqn{\gamma = (\mu_0, R_0, n_0)}}
 
 \item{alphaPriors}{Alpha prior parameters. See \code{\link{UpdateAlpha}}.}
 }

@@ -4,11 +4,23 @@
 \alias{vonMisesMixtureCreate}
 \title{Create a von Mises mixing distribution}
 \usage{
-vonMisesMixtureCreate(priorParameters)
+vonMisesMixtureCreate(priorParameters, muMargMethod = "marginal",
+  n_samp = 3)
 }
 \arguments{
 \item{priorParameters}{Prior parameters for the base measure which are, in
 order, (mu_0, R_0, c).}
+
+\item{muMargMethod}{Character; Method to deal with with marginalizing out the
+prior mean mu_0. If \code{"marginal"}, the posterior parameters are computed
+averaged over a uniform distribution on the prior mean. If \code{"sample"},
+a prior mean is sampled uniformly at each iteration.}
+
+\item{n_samp}{Number of samples to generate from the Gibbs sampler before
+accepting the sample as an i.i.d. sample from the posterior. Higher values
+mean we can be more certain that the sampler works correctly, at the cost of
+computational time. The sampler mixes very fast, but different values can be
+attempted by means of sensitivity.}
 }
 \value{
 Mixing distribution object

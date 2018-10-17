@@ -225,6 +225,41 @@ test_that("Development tests", {
   hist(mu_sam)
 
 
+  th <- c(0, pi/2)
+  th_bar <- pi/4
+
+
+  # R_n = sqrt(2) but, m = 3. Also mu_n = th_bar
+  PosteriorParameters(vonMisesMixtureCreate(c(0, 0, 1)), th)
+
+  # mu_0 doesnt matter if R_0 = 0.  mu_n = th_bar.
+  PosteriorParameters(vonMisesMixtureCreate(c(NA,0,1)), th)
+
+  # If R_0 > 0, mu_n != th_bar.
+  PosteriorParameters(vonMisesMixtureCreate(c(0,0.5,1)), th)
+
+  # Setting mu_0 == NA thus helps if we have R_0 > 0 to get more concentrated
+  # priors with still R_n = th_bar.
+  PosteriorParameters(vonMisesMixtureCreate(c(NA, 1,1)), th)
+
+
+  # This is even more pronounced if a cluster only gets assigned n = 1, which
+  # happens often in the DPM model.
+  th <- pi/4
+  PosteriorParameters(vonMisesMixtureCreate(c(0, 0, 1)), th)
+
+  PosteriorParameters(vonMisesMixtureCreate(c(NA, 1, 1)), th)
+
+  # Can we set R_0 > n_0???
+  PosteriorParameters(vonMisesMixtureCreate(c(NA, sqrt(2), 1)), th)
+  PosteriorParameters(vonMisesMixtureCreate(c(NA, 2000, 1)), th)
+  # This seems dangerous.
+
+
+  # Mu_0 Marginalization
+  hist(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1)), th, 1000)[[1]])
+  hist(PosteriorDraw.vonmises(vonMisesMixtureCreate(c(NA,.8,1), muMargMethod = "sample"), th, 1000)[[1]])
+
 })
 
 
