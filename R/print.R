@@ -4,13 +4,17 @@
 #' about the \code{dirichletprocess} object.
 #'
 #'
-#'
 #' @param x Dirichlet Process Object to print.
 #' @param param_summary If \code{TRUE}, print the overall averages of each
 #'   parameter of the model. Note that this averages over all clusters and over
 #'   all iterations, so it will only give a loose sense of the resulting DPM
 #'   model.
 #' @param digits Integer; Number of digits to display.
+#' @export
+#'
+#' @examples
+#' dp <- Fit(DirichletProcessGaussian(rnorm(10)), 100)
+#' dp
 #'
 print.dirichletprocess <- function(x, param_summary = FALSE, digits = 2) {
 
@@ -20,8 +24,8 @@ print.dirichletprocess <- function(x, param_summary = FALSE, digits = 2) {
 
   # Main title.
   burntxt <- ifelse(is.null(x$n_burned), "", paste0(" (plus ", x$n_burned, " burned)"))
-  cat("Dirichlet process object run for", length(x$labelsChain),
-      "iterations", burntxt, ".\n")
+  cat("Dirichlet process object run for ", length(x$labelsChain),
+      " iterations", burntxt, ".\n", sep = "")
 
 
   # Model info that always exists.
