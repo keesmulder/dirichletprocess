@@ -62,8 +62,7 @@ test_that("Constructor function", {
 
 test_that("Marginalized prior sampling/computation", {
 
-  expect_null(vonMisesMixtureCreate(c(0,0,1))$muMargSample)
-  expect_true(!is.null(vonMisesMixtureCreate(c(NA,0,1))$muMargSample))
+  expect_true(!is.null(vonMisesMixtureCreate(c(NA,0,1))$priorMeanSample))
 
   expect_is(PriorDraw.vonmises(vonMisesMixtureCreate(c(0,0,1))), "list")
 

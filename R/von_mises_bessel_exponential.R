@@ -12,7 +12,7 @@
 #'@param y Data
 #'@param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0, n_0)}
 #'@param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
-#'@param muMargMethod Method for marginalization of prior mean. See
+#'@param priorMeanMethod Method for marginalization of prior mean. See
 #'  \code{\link{vonMisesMixtureCreate}}.
 #'@param n_samp Number of Gibbs samples before we assume draws from posterior
 #'  are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
@@ -21,10 +21,10 @@
 #'@export
 DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
                                      alphaPriors = c(2, 4),
-                                     muMargMethod = "marginal",
+                                     priorMeanMethod = "integrate",
                                      n_samp = 3) {
 
-  mdobj <- vonMisesMixtureCreate(g0Priors, muMargMethod, n_samp)
+  mdobj <- vonMisesMixtureCreate(g0Priors, priorMeanMethod, n_samp)
   dpobj <- DirichletProcessCreate(y, mdobj, alphaPriors)
   dpobj <- Initialise(dpobj)
   return(dpobj)
@@ -34,11 +34,18 @@ DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'Create a von Mises mixing distribution
 #'
 #'@param priorParameters Prior parameters for the base measure which are, in
-#'  order, (mu_0, R_0, c).
-#'@param muMargMethod Character; Method to deal with with marginalizing out the
-#'  prior mean mu_0. If \code{"marginal"}, the posterior parameters are computed
-#'  averaged over a uniform distribution on the prior mean. If \code{"sample"},
-#'  a prior mean is sampled uniformly at each iteration.
+#'  order, (mu_0, R_0, c). The prior mean can be set to \code{NA} to be unknown.
+#'  It is then dealt with using a method selected by \code{priorMeanMethod}.
+#'@param priorMeanMethod Character; Method to deal with with the prior mean
+#'  mu_0, if it is given not given but set to \code{NA}. If
+#'  \code{"datadependent"}, the prior is assumed to be uninformative for the
+#'  mean direction, but the prior resultant length \eqn{R_0} is used 'as is',
+#'  that is the posterior resultant length is \eqn{R_n = R + R_0}. This
+#'  implictly assumes that the prior mean is the data mean direction
+#'  \eqn{\bar\theta}, which is why it is called `data dependent`. If
+#'  \code{"integrate"}, the posterior parameters are computed averaged over a
+#'  uniform distribution on the prior mean. If \code{"sample"}, a prior mean is
+#'  sampled uniformly at each iteration.
 #'@param n_samp Number of samples to generate from the Gibbs sampler before
 #'  accepting the sample as an i.i.d. sample from the posterior. Higher values
 #'  mean we can be more certain that the sampler works correctly, at the cost of
@@ -50,7 +57,7 @@ DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'@return Mixing distribution object
 #'@export
 vonMisesMixtureCreate <- function(priorParameters,
-                                  muMargMethod = "marginal",
+                                  priorMeanMethod = "integrate",
                                   n_samp = 3) {
   mdobj <- MixingDistribution("vonmises", priorParameters, "conjugate")
 
@@ -58,14 +65,15 @@ vonMisesMixtureCreate <- function(priorParameters,
 
   # If the prior mean direction mu_0 should be treated as unknown, add the
   # method to deal with this to the mixing distribution object.
-  if (is.na(priorParameters[1])) {
-    if (muMargMethod == "sample") {
-      mdobj$muMargSample <- TRUE
-    } else if (muMargMethod == "marginal") {
-      mdobj$muMargSample <- FALSE
-    } else {
-      stop(paste("Unknown method for marginalizing out the prior",
-                 "mean direction. Select 'sample' or 'marginal'."))
+  mdobj$noPriorMean <- is.na(priorParameters[1])
+  if (mdobj$noPriorMean) {
+    mdobj$priorMeanSample     <- priorMeanMethod == "sample"
+    mdobj$priorMeanDataDep    <- priorMeanMethod == "datadependent"
+    mdobj$priorMeanIntegrate  <- priorMeanMethod == "integrate"
+
+    if (!priorMeanMethod  %in%  c("sample", "datadependent", "integrate")) {
+      stop(paste("Unknown method for marginalizing out the prior mean ",
+                 "direction. Select 'datadependent', sample', or 'marginal'."))
     }
   }
 
@@ -106,16 +114,34 @@ PosteriorParameters.vonmises <- function(mdobj, x) {
 
   # If the mean direction is given, compute the posterior parameters as usual.
   # Else, if mu_0 is NA, we want to marginalize over it.
-  if (!is.na(priorParameters[1])) {
+  if (!mdobj$noPriorMean) {
     mu_0 <- priorParameters[1]
 
-  } else if (mdobj$muMargSample) {
+  } else if (mdobj$priorMeanSample) {
 
     # If we wish to sample it, sample a uniform prior mean and continue with the
     # usual computation.
     mu_0 <- runif(1, 0, 2*pi)
 
-  } else {
+  } else if (mdobj$priorMeanDataDep) {
+    R_0  <- priorParameters[2]
+    n_0  <- priorParameters[3]
+
+    # If data dependence,
+    C <- sum(cos(x))
+    S <- sum(sin(x))
+    # In this case, mu_n is the mean direction of the data.
+    mu_n <- atan2(S, C)
+    R <- sqrt(C^2 + S^2)
+
+    # In this case, the posterior resultant length is simply the sum of the two resultant lengths.
+    R_n <-  (R_0 + R)
+
+    n_n <- n_0 + length(x)
+    PosteriorParameters <- matrix(c(mu_n, R_n, n_n), ncol = 3)
+    return(PosteriorParameters)
+
+  } else if (mdobj$priorMeanIntegrate) {
       # When we don't sample the mean direction, we wish to marginalize by
       # taking the expectation over the uniform distribution on mu_0 for R_n.
       R_0  <- priorParameters[2]
@@ -179,7 +205,7 @@ PriorDraw.vonmises <- function(mdobj, n = 1) {
   if (n_0 < 0 | R_0 < -1) stop("Prior parameters out of bounds.")
 
   # If mu_0 is NA, sample uniform prior mean mu_0.
-  if (is.na(priorParameters[1])) {
+  if (mdobj$noPriorMean) {
 
     mu_0 <- runif(n, 0, 2*pi)
     mukp <- vapply(mu_0, function(mu0i) {
@@ -200,8 +226,8 @@ PriorDraw.vonmises <- function(mdobj, n = 1) {
 
 PosteriorDraw.vonmises <- function(mdobj, x, n = 1) {
 
-  # If mu_0 is NA, and muMargSample is TRUE, sample uniform prior mean mu_0.
-  if (is.na(mdobj$priorParameters[1]) && mdobj$muMargSample) {
+  # If mu_0 is NA, and priorMeanSample is TRUE, sample uniform prior mean mu_0.
+  if (mdobj$noPriorMean && mdobj$priorMeanSample) {
 
     PosteriorParameters_calc <- replicate(n, PosteriorParameters(mdobj, x))
 

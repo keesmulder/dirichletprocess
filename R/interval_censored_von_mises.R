@@ -31,7 +31,7 @@ circ_in_interval <- function(x, lb, ub) {
 #' @param y Data,
 #' @param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0 , n_0)}
 #' @param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
-#' @param muMargMethod Method for marginalization of prior mean. See
+#' @param priorMeanMethod Method for marginalization of prior mean. See
 #'   \code{\link{vonMisesMixtureCreate}}.
 #' @param n_samp Number of Gibbs samples before we assume draws from posterior
 #'  are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
@@ -40,10 +40,10 @@ circ_in_interval <- function(x, lb, ub) {
 #'@export
 DirichletProcessICVonMises <- function(y, g0Priors = c(0, 1, 1),
                                      alphaPriors = c(2, 4),
-                                     muMargMethod = "marginal",
+                                     priorMeanMethod = "integrate",
                                      n_samp = 3) {
 
-  mdobj <- vonMisesICMixtureCreate(g0Priors, muMargMethod, n_samp)
+  mdobj <- vonMisesICMixtureCreate(g0Priors, priorMeanMethod, n_samp)
   dpobj <- DirichletProcessCreate(y, mdobj, alphaPriors)
   dpobj <- Initialise(dpobj)
   return(dpobj)
@@ -53,7 +53,7 @@ DirichletProcessICVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'
 #'@param priorParameters Prior parameters for the base measure which are, in
 #'  order, (mu_0, R_0, c).
-#' @param muMargMethod Method for marginalization of prior mean. See
+#' @param priorMeanMethod Method for marginalization of prior mean. See
 #'   \code{\link{vonMisesMixtureCreate}}.
 #' @param n_samp Number of Gibbs samples before we assume draws from posterior
 #'  are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
@@ -61,13 +61,13 @@ DirichletProcessICVonMises <- function(y, g0Priors = c(0, 1, 1),
 #'@return Mixing distribution object
 #'@export
 vonMisesICMixtureCreate <- function(priorParameters,
-                                    muMargMethod = "marginal",
+                                    priorMeanMethod = "integrate",
                                     n_samp = 3) {
 
   # This mixture distribution is simply a von mises mixture distribution but
   # with conjugate = "ic_conjugate", which means that we need to sample
   # interval-censored data before the data is conjugate.
-  mdobj <- vonMisesMixtureCreate(priorParameters, muMargMethod, n_samp)
+  mdobj <- vonMisesMixtureCreate(priorParameters, priorMeanMethod, n_samp)
   mdobj$conjugate <- "ic_conjugate"
   class(mdobj)[which(class(mdobj) == "conjugate")] <- "ic_conjugate"
 
