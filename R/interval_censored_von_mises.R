@@ -69,6 +69,7 @@ vonMisesICMixtureCreate <- function(priorParameters,
   # interval-censored data before the data is conjugate.
   mdobj <- vonMisesMixtureCreate(priorParameters, muMargMethod, n_samp)
   mdobj$conjugate <- "ic_conjugate"
+  class(mdobj)[which(class(mdobj) == "conjugate")] <- "ic_conjugate"
 
   return(mdobj)
 }
