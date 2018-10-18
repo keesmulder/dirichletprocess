@@ -5,7 +5,7 @@
 \title{Create an interval censored Dirichlet Mixture of Von Mises distributions}
 \usage{
 DirichletProcessICVonMises(y, g0Priors = c(0, 1, 1), alphaPriors = c(2,
-  4), muMargMethod = "marginal", n_samp = 3)
+  4), priorMeanMethod = "integrate", n_samp = 3)
 }
 \arguments{
 \item{y}{Data,}
@@ -14,7 +14,7 @@ DirichletProcessICVonMises(y, g0Priors = c(0, 1, 1), alphaPriors = c(2,
 
 \item{alphaPriors}{Alpha prior parameters. See \code{\link{UpdateAlpha}}.}
 
-\item{muMargMethod}{Method for marginalization of prior mean. See
+\item{priorMeanMethod}{Method for marginalization of prior mean. See
 \code{\link{vonMisesMixtureCreate}}.}
 
 \item{n_samp}{Number of Gibbs samples before we assume draws from posterior

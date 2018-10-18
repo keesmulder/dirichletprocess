@@ -4,17 +4,24 @@
 \alias{vonMisesMixtureCreate}
 \title{Create a von Mises mixing distribution}
 \usage{
-vonMisesMixtureCreate(priorParameters, muMargMethod = "marginal",
+vonMisesMixtureCreate(priorParameters, priorMeanMethod = "integrate",
   n_samp = 3)
 }
 \arguments{
 \item{priorParameters}{Prior parameters for the base measure which are, in
-order, (mu_0, R_0, c).}
+order, (mu_0, R_0, c). The prior mean can be set to \code{NA} to be unknown.
+It is then dealt with using a method selected by \code{priorMeanMethod}.}
 
-\item{muMargMethod}{Character; Method to deal with with marginalizing out the
-prior mean mu_0. If \code{"marginal"}, the posterior parameters are computed
-averaged over a uniform distribution on the prior mean. If \code{"sample"},
-a prior mean is sampled uniformly at each iteration.}
+\item{priorMeanMethod}{Character; Method to deal with with the prior mean
+mu_0, if it is given not given but set to \code{NA}. If
+\code{"datadependent"}, the prior is assumed to be uninformative for the
+mean direction, but the prior resultant length \eqn{R_0} is used 'as is',
+that is the posterior resultant length is \eqn{R_n = R + R_0}. This
+implictly assumes that the prior mean is the data mean direction
+\eqn{\bar\theta}, which is why it is called `data dependent`. If
+\code{"integrate"}, the posterior parameters are computed averaged over a
+uniform distribution on the prior mean. If \code{"sample"}, a prior mean is
+sampled uniformly at each iteration.}
 
 \item{n_samp}{Number of samples to generate from the Gibbs sampler before
 accepting the sample as an i.i.d. sample from the posterior. Higher values

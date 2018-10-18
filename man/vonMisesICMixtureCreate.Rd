@@ -4,14 +4,14 @@
 \alias{vonMisesICMixtureCreate}
 \title{Create a von Mises interval censored mixing distribution}
 \usage{
-vonMisesICMixtureCreate(priorParameters, muMargMethod = "marginal",
+vonMisesICMixtureCreate(priorParameters, priorMeanMethod = "integrate",
   n_samp = 3)
 }
 \arguments{
 \item{priorParameters}{Prior parameters for the base measure which are, in
 order, (mu_0, R_0, c).}
 
-\item{muMargMethod}{Method for marginalization of prior mean. See
+\item{priorMeanMethod}{Method for marginalization of prior mean. See
 \code{\link{vonMisesMixtureCreate}}.}
 
 \item{n_samp}{Number of Gibbs samples before we assume draws from posterior
