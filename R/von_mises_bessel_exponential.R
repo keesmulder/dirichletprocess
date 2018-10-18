@@ -231,9 +231,9 @@ PosteriorDraw.vonmises <- function(mdobj, x, n = 1) {
 
     PosteriorParameters_calc <- replicate(n, PosteriorParameters(mdobj, x))
 
-    mu_n <- PosteriorParameters_calc[, , ][1, ]
-    R_n  <- PosteriorParameters_calc[, , ][2, ]
-    n_n  <- PosteriorParameters_calc[, , ][3, 1]
+    mu_n <- as.matrix(PosteriorParameters_calc[1, , ])[1, ]
+    R_n  <- as.matrix(PosteriorParameters_calc[1, , ])[2, ]
+    n_n  <- as.matrix(PosteriorParameters_calc[1, , ])[3, 1]
 
     mukp <- vapply(1:n, function(i) {
       one_vm_post_draw(mu_n[i], R_n[i], n_n, nsamp = mdobj$n_samp)

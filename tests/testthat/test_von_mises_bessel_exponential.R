@@ -68,6 +68,7 @@ test_that("Marginalized prior sampling/computation", {
 
   expect_is(PriorDraw.vonmises(vonMisesMixtureCreate(c(NA,0,1))), "list")
 
+  set.seed(3)
   n <- 100
   y <- rnorm(n) %% (2*pi)
 
@@ -77,6 +78,17 @@ test_that("Marginalized prior sampling/computation", {
   dp <- Fit(dp, 4)
 
   expect_s3_class(dp, "dirichletprocess")
+
+  # Test all three priorMeanMethods
+  expect_s3_class(
+    Fit(DirichletProcessVonMises(y, c(NA, 0, 1), c(2, 3), priorMeanMethod = "sample"), 4),
+    "dirichletprocess")
+  expect_s3_class(
+    Fit(DirichletProcessVonMises(y, c(NA, 0, 1), c(2, 3), priorMeanMethod = "integrate"), 4),
+    "dirichletprocess")
+  expect_s3_class(
+    Fit(DirichletProcessVonMises(y, c(NA, 0, 1), c(2, 3), priorMeanMethod = "datadependent"), 4),
+    "dirichletprocess")
 })
 
 
