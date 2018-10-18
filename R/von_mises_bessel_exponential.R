@@ -73,7 +73,7 @@ vonMisesMixtureCreate <- function(priorParameters,
 
     if (!priorMeanMethod  %in%  c("sample", "datadependent", "integrate")) {
       stop(paste("Unknown method for marginalizing out the prior mean ",
-                 "direction. Select 'datadependent', sample', or 'marginal'."))
+                 "direction. Select 'datadependent', sample', or 'integrate'."))
     }
   }
 
