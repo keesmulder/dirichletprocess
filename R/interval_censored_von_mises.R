@@ -28,7 +28,6 @@ circ_in_interval <- function(x, lb, ub) {
 #'The base measure is \eqn{G_0 (\mu, \kappa \mid \gamma) = I_0(R \kappa)^{- n_0}
 #'\exp(R_0 \kappa \cos(\mu - \mu_0))}.
 #'
-#'
 #' @param y Data,
 #' @param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0 , n_0)}
 #' @param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
@@ -65,22 +64,11 @@ vonMisesICMixtureCreate <- function(priorParameters,
                                     muMargMethod = "marginal",
                                     n_samp = 3) {
 
-  mdobj <- MixingDistribution("vonmises", priorParameters, "ic_conjugate")
-
-  mdobj$n_samp <- n_samp
-
-  # If the prior mean direction mu_0 should be treated as unknown, add the
-  # method to deal with this to the mixing distribution object.
-  if (is.na(priorParameters[1])) {
-    if (muMargMethod == "sample") {
-      mdobj$muMargSample <- TRUE
-    } else if (muMargMethod == "marginal") {
-      mdobj$muMargSample <- FALSE
-    } else {
-      stop(paste("Unknown method for marginalizing out the prior",
-                 "mean direction. Select 'sample' or 'marginal'."))
-    }
-  }
+  # This mixture distribution is simply a von mises mixture distribution but
+  # with conjugate = "ic_conjugate", which means that we need to sample
+  # interval-censored data before the data is conjugate.
+  mdobj <- vonMisesMixtureCreate(priorParameters, muMargMethod, n_samp)
+  mdobj$conjugate <- "ic_conjugate"
 
   return(mdobj)
 }
