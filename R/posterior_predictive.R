@@ -5,6 +5,8 @@
 #' Thus, this function is useful for prediction as well as decision making.
 #'
 #' @param dpobj A dirichletprocess object.
+#' @param n Integer; number of samples to draw.
+#' @param ... further arguments.
 #'
 #' @return A numeric vector of samples from the posterior predictive
 #'   distribution.
@@ -21,6 +23,7 @@ PosteriorPredictiveDraw <- function(dpobj, ...) {
 
 
 #' @export
+#' @rdname PosteriorPredictiveDraw
 PosteriorPredictiveDraw.dirichletprocess <- function(dpobj, n = 1, ...) {
 
   chainlen <- length(dpobj$likelihoodChain)
@@ -55,9 +58,10 @@ PosteriorPredictiveDraw.dirichletprocess <- function(dpobj, n = 1, ...) {
 #' @param dpobj A dirichletprocess object.
 #' @param params A parameter vector.
 #' @param n Number of required samples
-#' @param ...
+#' @param ... further arguments.
 #'
 #' @return n sampled values.
+#' @export
 #'
 #' @examples
 #' dp <- Fit(DirichletProcessGaussian(c(rnorm(100), rnorm(100, 3))), 10)
@@ -68,6 +72,7 @@ DrawFromDataDistribution <- function(dpobj, ...) {
 }
 
 #' @export
+#' @rdname DrawFromDataDistribution
 DrawFromDataDistribution.normal <- function(dpobj, params, n = 1, ...) {
   rnorm(n, params[1], params[2])
 }
@@ -101,6 +106,7 @@ PosteriorPredictiveInterval <- function(dpobj, ...) {
 
 
 #' @export
+#' @rdname PosteriorPredictiveInterval
 PosteriorPredictiveInterval.dirichletprocess <- function(dpobj,
                                                          from, to,
                                                          n_reps = 100,
@@ -110,7 +116,7 @@ PosteriorPredictiveInterval.dirichletprocess <- function(dpobj,
   nits <- length(dpobj$likelihoodChain)
 
   prob_sample <- replicate(n_reps, {
-    integrate(PosteriorFunction(dpobj, sample(1:nits, 1)), from, to)$value
+    stats::integrate(PosteriorFunction(dpobj, sample(1:nits, 1)), from, to)$value
   })
 
   # Return the quantile

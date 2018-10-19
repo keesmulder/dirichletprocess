@@ -2,14 +2,17 @@
 % Please edit documentation in R/posterior_predictive.R
 \name{DrawFromDataDistribution}
 \alias{DrawFromDataDistribution}
+\alias{DrawFromDataDistribution.normal}
 \title{Draw data according to the distribution of a dirichletprocess}
 \usage{
 DrawFromDataDistribution(dpobj, ...)
+
+\method{DrawFromDataDistribution}{normal}(dpobj, params, n = 1, ...)
 }
 \arguments{
 \item{dpobj}{A dirichletprocess object.}
 
-\item{...}{}
+\item{...}{further arguments.}
 
 \item{params}{A parameter vector.}
 

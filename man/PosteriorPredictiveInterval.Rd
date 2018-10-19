@@ -2,9 +2,13 @@
 % Please edit documentation in R/posterior_predictive.R
 \name{PosteriorPredictiveInterval}
 \alias{PosteriorPredictiveInterval}
+\alias{PosteriorPredictiveInterval.dirichletprocess}
 \title{Obtain an estimate of the proportion of future data in a certain interval}
 \usage{
 PosteriorPredictiveInterval(dpobj, ...)
+
+\method{PosteriorPredictiveInterval}{dirichletprocess}(dpobj, from, to,
+  n_reps = 100, ci_size = 0.05, ...)
 }
 \arguments{
 \item{dpobj}{A dirichletprocess object.}

@@ -2,12 +2,19 @@
 % Please edit documentation in R/posterior_predictive.R
 \name{PosteriorPredictiveDraw}
 \alias{PosteriorPredictiveDraw}
+\alias{PosteriorPredictiveDraw.dirichletprocess}
 \title{Draw from the posterior predictive distribution of a dirichlet process model.}
 \usage{
 PosteriorPredictiveDraw(dpobj, ...)
+
+\method{PosteriorPredictiveDraw}{dirichletprocess}(dpobj, n = 1, ...)
 }
 \arguments{
 \item{dpobj}{A dirichletprocess object.}
+
+\item{...}{further arguments.}
+
+\item{n}{Integer; number of samples to draw.}
 }
 \value{
 A numeric vector of samples from the posterior predictive
