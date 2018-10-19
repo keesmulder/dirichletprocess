@@ -1,8 +1,3 @@
-PosteriorPredictiveDraw <- function(x, ...) {
-  UseMethod("PosteriorPredictiveDraw", x)
-}
-
-
 #' Draw from the posterior predictive distribution of a dirichlet process model.
 #'
 #' By drawing from the posterior predictive distribution, we generate possible
@@ -19,7 +14,14 @@ PosteriorPredictiveDraw <- function(x, ...) {
 #' dp <- Fit(DirichletProcessGaussian(c(rnorm(100), rnorm(100, 3))), 10)
 #' PosteriorPredictiveDraw(dp, 10)
 #'
-PosteriorPredictiveDraw.dirichletprocess <- function(dpobj, n = 1) {
+PosteriorPredictiveDraw <- function(dpobj, ...) {
+  UseMethod("PosteriorPredictiveDraw", dpobj)
+}
+
+
+
+#' @export
+PosteriorPredictiveDraw.dirichletprocess <- function(dpobj, n = 1, ...) {
 
   chainlen <- length(dpobj$likelihoodChain)
 
@@ -65,6 +67,7 @@ DrawFromDataDistribution <- function(dpobj, ...) {
   UseMethod("DrawFromDataDistribution", dpobj$mixingDistribution)
 }
 
+#' @export
 DrawFromDataDistribution.normal <- function(dpobj, params, n = 1, ...) {
   rnorm(n, params[1], params[2])
 }
@@ -97,6 +100,7 @@ PosteriorPredictiveInterval <- function(dpobj, ...) {
 }
 
 
+#' @export
 PosteriorPredictiveInterval.dirichletprocess <- function(dpobj,
                                                          from, to,
                                                          n_reps = 100,
