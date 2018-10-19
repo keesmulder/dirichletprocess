@@ -1,25 +1,29 @@
-#'Create a Dirichlet Mixture of Von Mises distributions
+#' Create a Dirichlet Mixture of Von Mises distributions
 #'
-#'This is the constructor function to produce a \code{dirichletprocess} object
-#'with a Von Mises mixture kernel with unknown mean and unknown concentration
-#'kappa. The base measure is conjugate to the posterior distribution.
-#'
-#'
-#'The base measure is \eqn{G_0 (\mu, \kappa \mid \gamma) = I_0(R \kappa)^{- n_0}
-#'\exp(R_0 \kappa \cos(\mu - \mu_0))}.
+#' This is the constructor function to produce a \code{dirichletprocess} object
+#' with a Von Mises mixture kernel with unknown mean and unknown concentration
+#' kappa. The base measure is conjugate to the posterior distribution.
 #'
 #'
-#'@param y Data
-#'@param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0, n_0)}
-#'@param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
-#'@param priorMeanMethod Method for marginalization of prior mean. See
-#'  \code{\link{vonMisesMixtureCreate}}.
-#'@param n_samp Number of Gibbs samples before we assume draws from posterior
-#'  are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
+#' The base measure is \eqn{G_0 (\mu, \kappa \mid \gamma) = I_0(R \kappa)^{- n_0}
+#' \exp(R_0 \kappa \cos(\mu - \mu_0))}.
 #'
-#'@return Dirichlet process object
-#'@export
-DirichletProcessVonMises <- function(y, g0Priors = c(0, 1, 1),
+#'
+#' @param y Data
+#' @param g0Priors Base Distribution Priors \eqn{\gamma = (\mu_0, R_0, n_0)}
+#' @param alphaPriors Alpha prior parameters. See \code{\link{UpdateAlpha}}.
+#' @param priorMeanMethod Method for marginalization of prior mean. See
+#'   \code{\link{vonMisesMixtureCreate}}.
+#' @param n_samp Number of Gibbs samples before we assume draws from posterior
+#'   are i.i.d. See \code{\link{vonMisesMixtureCreate}}.
+#'
+#' @return Dirichlet process object
+#' @export
+#'
+#' @examples
+#' dp <- Fit(DirichletProcessVonMises(rvmc(100, 2, 5)), 1000)
+#' dp
+DirichletProcessVonMises <- function(y, g0Priors = c(0, 0, 1),
                                      alphaPriors = c(2, 4),
                                      priorMeanMethod = "integrate",
                                      n_samp = 3) {
