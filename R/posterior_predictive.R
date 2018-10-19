@@ -69,3 +69,46 @@ DrawFromDataDistribution.normal <- function(dpobj, params, n = 1, ...) {
   rnorm(n, params[1], params[2])
 }
 
+
+
+#' Obtain an estimate of the proportion of future data in a certain interval
+#'
+#' Using the posterior predictive distribution, we can obtain an estimate of the
+#' proportion of data in a certain interval, as well as the uncertainty around
+#' this estimate across the posterior.
+#'
+#' @param dpobj A dirichletprocess object.
+#' @param from Start of the interval.
+#' @param to End of the interval.
+#' @param n_reps Nnumber of posterior samples to use to estimate the interval.
+#' @param ci_size Width of the credible interval around the probability
+#'   estimate.
+#' @param ... further arguments.
+#'
+#' @return The median probabiliity along with the credible interval.
+#' @export
+#'
+#' @examples
+#' dp <- Fit(DirichletProcessGaussian(c(rnorm(100), rnorm(100, 3))), 10)
+#' PosteriorPredictiveInterval(dp, 0, 3)
+#'
+PosteriorPredictiveInterval <- function(dpobj, ...) {
+  UseMethod("PosteriorPredictiveInterval", dpobj)
+}
+
+
+PosteriorPredictiveInterval.dirichletprocess <- function(dpobj,
+                                                         from, to,
+                                                         n_reps = 100,
+                                                         ci_size = .05,
+                                                         ...) {
+  # Chain size.
+  nits <- length(dpobj$likelihoodChain)
+
+  prob_sample <- replicate(n_reps, {
+    integrate(PosteriorFunction(dpobj, sample(1:nits, 1)), from, to)$value
+  })
+
+  # Return the quantile
+  quantile(prob_sample, c(ci_size / 2, .5, 1 - ci_size / 2))
+}
