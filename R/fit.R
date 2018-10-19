@@ -13,7 +13,7 @@
 #' @references Neal, R. M. (2000). Markov chain sampling methods for Dirichlet process mixture models. Journal of computational and graphical statistics, 9(2), 249-265.
 #'
 #' @export
-Fit <- function(dpObj, its, updatePrior = FALSE, progressBar=TRUE) UseMethod("Fit", dpObj)
+Fit <- function(dpObj, its, updatePrior = FALSE, progressBar=interactive()) UseMethod("Fit", dpObj)
 
 #' @export
 Fit.default <- function(dpObj, its, updatePrior = FALSE, progressBar = interactive()) {

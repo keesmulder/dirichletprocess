@@ -4,7 +4,7 @@
 \alias{Fit}
 \title{Fit the Dirichlet process object}
 \usage{
-Fit(dpObj, its, updatePrior = FALSE, progressBar = TRUE)
+Fit(dpObj, its, updatePrior = FALSE, progressBar = interactive())
 }
 \arguments{
 \item{dpObj}{Initialised Dirichlet Process object}
