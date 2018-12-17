@@ -260,6 +260,19 @@ PosteriorDraw.vonmises <- function(mdobj, x, n = 1) {
 
 
 
+# Integral over mu and kp of exp(R * kp * cos(mu)) / (besselI(kp, 0)^n)
+vmbesselexp_nc <- function(R, n) {
+
+  # mu is already integrated out analytically here. The function is
+  # exponentiated at the very end for numerical stability.
+  nc_fun <- function(kp) {
+    exp(logBesselI(R * kp, 0) - n * logBesselI(kp, 0))
+  }
+
+  integrate(nc_fun, 0, Inf)$value
+}
+
+
 Predictive.vonmises <- function(mdobj, x) {
 
   # If uninformative prior, only do this once because the predictive will be the
@@ -267,18 +280,25 @@ Predictive.vonmises <- function(mdobj, x) {
   # if (mdobj$priorParameters[2] == 0) x <- x[1]
 
   predictiveArray <- numeric(length(x))
+
+  R_0  <- mdobj$priorParameters[2]
+  n_0  <- mdobj$priorParameters[3]
+
+  # Normalizing constant of G_0
+  nc <- vmbesselexp_nc(R_0, n_0) * (2 * pi)^(1 - n_0)
+
+  # Term from the integral over the von Mises times the rest of G_0
+  log_nc2 <- -n_0 * log(2 * pi)
+
   for (i in seq_along(x)) {
 
+    # Summary statistics for one data point plus the prior.
     PosteriorParameters_calc <- PosteriorParameters(mdobj, x[i])
-    R_n  <- PosteriorParameters_calc[2]
-    n_n  <- PosteriorParameters_calc[3]
+    R_p  <- PosteriorParameters_calc[2]
 
     # The posterior predictive density with the mean direction integrated out.
-    marglikfun <- function(kp) exp(logBesselI(R_n * kp, 0) -
-                                     n_n * logBesselI(kp, 0))
-
-    predictiveArray[i] <- integrate(marglikfun, 0, Inf)$value / (2*pi)
+    predictiveArray[i] <- vmbesselexp_nc(R_p, n_0 + 1)
   }
 
-  return(predictiveArray)
+  return(predictiveArray * exp(log_nc2) / nc)
 }

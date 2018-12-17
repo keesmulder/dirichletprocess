@@ -1,6 +1,6 @@
 context("Von Mises Mixing Distribution Functions")
 
-data_test <-  rvmc(10, 3, 2)
+data_test <-  circglmbayes::rvmc(10, 3, 2)
 
 vonmises_object_test = vonMisesMixtureCreate(c(1, 0, 2))
 
@@ -93,6 +93,11 @@ test_that("Marginalized prior sampling/computation", {
 
 
 
+test_that("Normalizing Constant Von Mises Bessel Expon", {
+  expect_is(vmbesselexp_nc(3, 4), "numeric")
+
+})
+
 
 
 test_that("Development tests", {
@@ -167,7 +172,7 @@ test_that("Development tests", {
 
 
   # REAL DATA
-  x <- c(rvmc(30, 0, 2), rvmc(50, 2, 15), rvmc(80, 3.6, 20)) %% (2*pi)
+  x <- c(circglmbayes::rvmc(30, 0, 2), circglmbayes::rvmc(50, 2, 15), circglmbayes::rvmc(80, 3.6, 20)) %% (2*pi)
   hist(x, breaks = 100)
 
   priPar     <- matrix(c(0, 0, 1), ncol = 3)
