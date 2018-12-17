@@ -31,7 +31,9 @@ Suggests: testthat,
     dplyr
 Imports: gtools,
          ggplot2,
-         mvtnorm
+         mvtnorm,
+    circglmbayes,
+    flexcircmix
 URL: https://github.com/dm13450/dirichletprocess
 BugReports: https://github.com/dm13450/dirichletprocess/issues
 RoxygenNote: 6.1.0

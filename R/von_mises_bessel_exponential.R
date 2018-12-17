@@ -84,10 +84,6 @@ vonMisesMixtureCreate <- function(priorParameters,
   return(mdobj)
 }
 
-# Should solve this at some point, I can't very well depend on all my wonky
-# packages.
-library(flexcircmix)
-library(circglmbayes)
 
 # Helper function, log of a bessel function.
 logBesselI <- function(x, nu) log(besselI(x, nu, expon.scaled = TRUE)) + x
@@ -193,8 +189,8 @@ one_vm_post_draw <- function(mun, rn, m, nsamp = 3) {
   mu <- runif(1, -pi, pi)
 
   for (i in 1:nsamp) {
-    kp <- rbesselexp2(1, mu, mun, rn, m)
-    mu <- rvmc(1, mun, rn * kp)
+    kp <- flexcircmix::rbesselexp2(1, mu, mun, rn, m)
+    mu <- circglmbayes::rvmc(1, mun, rn * kp)
   }
   c(mu, kp)
 }
