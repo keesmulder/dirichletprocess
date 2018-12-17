@@ -99,12 +99,12 @@ dvm <- Vectorize(function(x, mu, kp) {
 dbesselexp2 <- function(kp, mu, mu_n, R_n, n_n) {
   eta <- n_n
   g <- -R_n * cos(mu - mu_n) / n_n
-  dbesselexp(kp, eta, g)
+  flexcircmix::dbesselexp(kp, eta, g)
 }
 rbesselexp2 <- function(n, mu, mu_n, R_n, n_n) {
   eta <- n_n
   g <- -R_n * cos(mu - mu_n) / n_n
-  rbesselexp(n, eta, g)
+  flexcircmix::rbesselexp(n, eta, g)
 }
 
 
@@ -189,7 +189,7 @@ one_vm_post_draw <- function(mun, rn, m, nsamp = 3) {
   mu <- runif(1, -pi, pi)
 
   for (i in 1:nsamp) {
-    kp <- flexcircmix::rbesselexp2(1, mu, mun, rn, m)
+    kp <- rbesselexp2(1, mu, mun, rn, m)
     mu <- circglmbayes::rvmc(1, mun, rn * kp)
   }
   c(mu, kp)
