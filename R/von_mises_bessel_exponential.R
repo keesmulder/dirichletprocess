@@ -281,8 +281,8 @@ Predictive.vonmises <- function(mdobj, x) {
 
   predictiveArray <- numeric(length(x))
 
-  R_0  <- mdobj$priorParameters[2]
-  n_0  <- mdobj$priorParameters[3]
+  R_0   <- mdobj$priorParameters[2]
+  n_0   <- mdobj$priorParameters[3]
 
   # Normalizing constant of G_0
   nc <- vmbesselexp_nc(R_0, n_0) * (2 * pi)^(1 - n_0)
@@ -292,12 +292,12 @@ Predictive.vonmises <- function(mdobj, x) {
 
   for (i in seq_along(x)) {
 
-    # Summary statistics for one data point plus the prior.
-    PosteriorParameters_calc <- PosteriorParameters(mdobj, x[i])
-    R_p  <- PosteriorParameters_calc[2]
+    post_param <- PosteriorParameters.vonmises(mdobj, x[i])
+    R_p <- post_param[2]
+    n_p <- post_param[3]
 
     # The posterior predictive density with the mean direction integrated out.
-    predictiveArray[i] <- vmbesselexp_nc(R_p, n_0 + 1)
+    predictiveArray[i] <- vmbesselexp_nc(R_p, n_p)
   }
 
   return(predictiveArray * exp(log_nc2) / nc)

@@ -45,10 +45,18 @@ test_that("Predictive", {
   th <- c(circglmbayes::rvmc(200, 3, 5), circglmbayes::rvmc(200, 5, 5))
 
   dp <- DirichletProcessVonMises(th)
-
   dp_fit <- Fit(dp, 1000)
-
   DiagnosticPlots(dp_fit)
-  plot(dp, data_method = "hist")
+  plot(dp_fit, data_method = "hist", single = FALSE) + ggplot2::coord_cartesian()
+
+
+  th <- c(circglmbayes::rvmc(200, 3, 5), circglmbayes::rvmc(200, 5, 5))
+
+  dp <- DirichletProcessVonMises(th, g0Priors = c(NA, .8, 1), priorMeanMethod = "integrate")
+  dp_fit <- Fit(dp, 1000)
+  DiagnosticPlots(dp_fit)
+  plot(dp_fit, data_method = "hist", single = FALSE)
+  plot(dp_fit, data_method = "hist", single = FALSE) + ggplot2::coord_cartesian()
+
 
 })
