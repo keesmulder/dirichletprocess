@@ -45,7 +45,7 @@ test_that("Predictive", {
   th <- c(circglmbayes::rvmc(200, 3, 5), circglmbayes::rvmc(200, 5, 5))
 
   dp <- DirichletProcessVonMises(th)
-  dp_fit <- Fit(dp, 1000)
+  dp_fit <- Fit(dp, 100)
   DiagnosticPlots(dp_fit)
   plot(dp_fit, data_method = "hist", single = FALSE) + ggplot2::coord_cartesian()
 
